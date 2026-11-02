@@ -2,7 +2,7 @@
 
 Herramientas locales para inteligencia artificial, con Muse como cerebro: conversación, biblioteca de archivos y ejecución en una carpeta de trabajo elegida.
 
-Este repositorio contiene Bee-Muse de escritorio y su servicio. Es distinto de BeeCode, de las variantes basadas en Crush y del experimento Bee-Muse Android.
+Este repositorio contiene Bee-Muse de escritorio, su servicio y el cliente Android nativo. Es distinto de BeeCode y de las variantes históricas basadas en Crush o Android que no corresponden a su fork de OpenCode.
 
 ## Ejecutar desde código
 
@@ -20,8 +20,9 @@ La primera apertura crea una biblioteca vacía en los datos de la aplicación. P
 ## Estado
 
 - Windows: código recuperado de la aplicación existente. La nueva conexión con Muse creó un archivo real en una carpeta temporal y devolvió correctamente un cálculo solicitado.
-- Linux y macOS: servicio Python portable y compilaciones configuradas en CI; pruebas de cada paquete pendientes.
-- Android: cliente y pruebas pendientes. No se presenta Electron como un APK.
+- Linux y macOS: servicio Python portable; compilaciones y pruebas automatizadas de la versión 0.4.0 completadas en CI. Falta el uso real de cada paquete en esos sistemas.
+- Android: cliente nativo Java y APK de depuración compilados en CI. Incluye conexión HTTPS con emparejamiento, consulta local de carpetas, chat y voz del teléfono. Falta la ronda de uso en dispositivo; consulta [ANDROID.md](ANDROID.md).
+- Meta: aplicación Bee-Muse registrada en modo de desarrollo, propiedad de IArtLabs y con Facebook Login agregado. Falta configurar el retorno OAuth y Firebase y completar un acceso real; consulta [META.md](META.md).
 - INBEEBOX: herramientas MCP de consulta implementadas; salud local verificada.
 - BeeCode: integración pendiente; no se sustituye el fork correcto por las variantes Android o Crush.
 

@@ -11,11 +11,11 @@ Las pruebas sintéticas no contienen documentos ni credenciales del propietario.
 
 ## Pendientes explícitos
 
-- Facebook: el flujo está implementado y se prueba su validación con datos simulados. Falta habilitar el proveedor en Firebase, registrar la aplicación y el retorno OAuth en Meta y completar un acceso real. No se han creado aplicaciones ni copiado secretos de Meta.
+- Facebook: el flujo está implementado y se prueba su validación con datos simulados. La aplicación Bee-Muse ya está registrada en Meta con ID `1747909204005226`, en modo de desarrollo, asignada al portfolio IArtLabs y con `FB_LOGIN` agregado. Los tres cambios fueron autorizados por Art y comprobados mediante lecturas posteriores del MCP oficial. Falta configurar el retorno OAuth y el proveedor en Firebase y completar un acceso real. No se han copiado secretos de Meta. [Estado y datos de configuración](META.md).
 - Dictado de Meta: la grabación y el adaptador están implementados. La prueba real con audio sintético falló porque el CLI de Muse en este Windows no reconoció un decodificador de audio, incluso habiendo FFmpeg disponible. No se afirma que el dictado esté funcionando.
 - Voz de respuesta: utiliza síntesis del sistema/navegador con activación explícita; no se presenta como una voz generada por Meta.
-- Linux y macOS: hay compilación reproducible y una matriz CI. Las pruebas reales en esas máquinas siguen pendientes hasta que corra y se inspeccione CI y los usuarios prueben cada paquete.
-- Android: el núcleo puede probarse mediante Python en Termux. No hay todavía un APK nativo ni una conexión remota autenticada a Muse.
+- Linux y macOS: la matriz CI de la versión 0.4.0 completó compilaciones y pruebas automatizadas. Las pruebas de interacción con los paquetes en equipos reales siguen pendientes. [Ejecución comprobada](https://github.com/ART449/bee-muse/actions/runs/41500896693).
+- Android: el proyecto nativo compiló su APK de depuración en CI. El cliente incluye emparejamiento con un gateway HTTPS, consulta local de carpetas, chat y voces del equipo. El gateway está implementado; no se ha certificado una conexión con certificado real ni la ronda de uso en dispositivo. [Compilación comprobada](https://github.com/ART449/bee-muse/actions/runs/41500341989) y [conexión Android](ANDROID.md).
 - BeeCode: recuperar el fork correcto antes de conectarlo.
 
 ## Repetir las pruebas
