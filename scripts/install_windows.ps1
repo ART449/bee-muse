@@ -4,6 +4,7 @@ $packageRoot=(Resolve-Path -LiteralPath $Package).Path
 $installRoot=[IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'Programs\Bee-Muse'))
 if(-not(Test-Path -LiteralPath (Join-Path $packageRoot 'Bee-Muse.exe')) -or -not(Test-Path -LiteralPath (Join-Path $packageRoot 'resources\backend\bee-muse-service.exe'))){throw 'El paquete de Bee-Muse no está completo.'}
 if($packageRoot -eq $installRoot){throw 'El paquete de origen ya es la instalación.'}
+if((Test-Path -LiteralPath $installRoot) -and ((Get-Item -LiteralPath $installRoot -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'La carpeta de instalación es un enlace. Elige una ubicación normal antes de instalar.'}
 Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($installRoot+'\',[StringComparison]::OrdinalIgnoreCase) } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
 New-Item -ItemType Directory -Path $installRoot -Force | Out-Null
 Get-ChildItem -LiteralPath $packageRoot -Force | Copy-Item -Destination $installRoot -Recurse -Force
