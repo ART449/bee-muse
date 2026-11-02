@@ -38,8 +38,6 @@ Herramientas para IA, no una IA nueva ni solamente un buscador HTML. Muse es el 
 - Meta for Developers: Art autorizó la conexión OAuth del MCP oficial y aceptó expresamente los términos para crear Bee-Muse. La aplicación ya está registrada en modo de desarrollo, ID `1747909204005226`. Art también autorizó expresamente asignarla a IArtLabs y agregar Facebook Login; ambas operaciones terminaron y se comprobaron por MCP. Siguen pendientes el retorno OAuth, el proveedor Firebase y el acceso real. La consulta de ajustes avanzados devolvió el retorno vacío; no se ha revelado ni copiado el secreto.
 - La auditoría pegada por Art corresponde al portable 0.2.0. Varios procesos Electron no demuestran por sí solos varias instancias: hay procesos auxiliares. Verificar ventanas y backends antes de cerrar procesos.
 
-## Comandos desde la raíz
-
 ## Ampliación 0.5.0 · asistente Android y navegador
 
 - Código Android versionado en `ac8c274` y corrección de API de notificaciones en `c1f2ece`. Compilación Android correcta, ejecución `41510052508`; APK descargado fuera del repositorio en outputs/Bee-Muse-Android-0.5.0/app-debug.apk.

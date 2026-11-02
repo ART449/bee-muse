@@ -10,4 +10,10 @@ packager({dir:stage,name:'Bee-Muse',platform:process.platform,arch:process.arch,
   extraResource:[path.join(__dirname,'backend'),path.join(__dirname,'library-template')],
   appBundleId:'com.iartlabs.beemuse',appCopyright:'IArtLabs',
   win32metadata:{CompanyName:'IArtLabs',FileDescription:'Bee-Muse · IArtLabs',ProductName:'Bee-Muse'}})
-  .then(paths=>console.log(paths.join('\n'))).catch(error=>{console.error(error);process.exitCode=1;});
+  .then(paths=>{
+    if(process.platform==='win32')for(const folder of paths){
+      for(const file of ['install_windows.ps1','uninstall_windows.ps1'])fs.copyFileSync(path.join(__dirname,'..','scripts',file),path.join(folder,file));
+      fs.writeFileSync(path.join(folder,'Instalar-Bee-Muse.cmd'),'@echo off\r\npowershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0install_windows.ps1" -Package "%~dp0."\r\nif errorlevel 1 pause\r\n');
+    }
+    console.log(paths.join('\n'));
+  }).catch(error=>{console.error(error);process.exitCode=1;});

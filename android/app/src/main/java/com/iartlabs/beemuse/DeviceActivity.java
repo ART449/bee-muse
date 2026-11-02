@@ -18,7 +18,12 @@ public class DeviceActivity extends Activity {
   private String expected="";
   private android.content.SharedPreferences preferences;
   @Override public void onCreate(Bundle saved){
-    super.onCreate(saved);preferences=getSharedPreferences("device",0);
+    super.onCreate(saved);
+    if(getSystemService(KeyguardManager.class).isDeviceLocked()){
+      getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+      LinearLayout gate=new LinearLayout(this);gate.setOrientation(1);gate.setPadding(24,32,24,32);setContentView(gate);status=new TextView(this);status.setText("Desbloquea con Android para acceder a Bee-Muse. El sistema comprueba tu identidad.");gate.addView(status);Button unlock=new Button(this);unlock.setText("Solicitar desbloqueo a Android");gate.addView(unlock);unlock.setOnClickListener(v->getSystemService(KeyguardManager.class).requestDismissKeyguard(this,new KeyguardManager.KeyguardDismissCallback(){@Override public void onDismissSucceeded(){recreate();}@Override public void onDismissCancelled(){status.setText("Desbloqueo cancelado. Tus herramientas siguen protegidas.");}@Override public void onDismissError(){status.setText("Usa el desbloqueo de la pantalla de Android y vuelve a Bee-Muse.");}}));return;
+    }
+    preferences=getSharedPreferences("device",0);
     BeeAccessibilityService service=BeeAccessibilityService.active;expected=service==null?"":service.target();
     ScrollView scroll=new ScrollView(this);body=new LinearLayout(this);body.setOrientation(1);body.setPadding(24,24,24,32);scroll.addView(body);setContentView(scroll);
     label("Bee-Muse · Asistente del teléfono");
@@ -53,6 +58,7 @@ public class DeviceActivity extends Activity {
   private void execute(String text){
     try{
       DeviceActions action=DeviceActions.parse(text);
+      if(getSystemService(KeyguardManager.class).isDeviceLocked()&&!action.type.equals("unlock"))throw new IllegalArgumentException("Desbloquea primero con Android.");
       if(action.type.equals("open")){
         List<ResolveInfo> matches=new ArrayList<>();for(ResolveInfo app:apps())if(DeviceActions.normalize(app.loadLabel(getPackageManager()).toString()).equals(action.argument))matches.add(app);
         if(matches.size()!=1)throw new IllegalArgumentException("No hay una aplicación única con ese nombre. Usa el nombre exacto del lanzador.");
@@ -66,5 +72,5 @@ public class DeviceActivity extends Activity {
       new Handler(Looper.getMainLooper()).postDelayed(()->{if(BeeAccessibilityService.active!=service){Toast.makeText(getApplicationContext(),"El acceso de pantalla se desactivó.",Toast.LENGTH_LONG).show();return;}service.execute(action,target,result->Toast.makeText(getApplicationContext(),result,Toast.LENGTH_LONG).show());},650);
     }catch(Exception e){status.setText(e.getMessage()==null?"No se pudo ejecutar la orden.":e.getMessage());}
   }
-  @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request==20&&result==RESULT_OK&&data!=null){ArrayList<String> words=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);if(words!=null&&!words.isEmpty()){command.setText(words.get(0));execute(words.get(0));}}}
+  @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request==20&&result==RESULT_OK&&data!=null&&command!=null){ArrayList<String> words=data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);if(words!=null&&!words.isEmpty()){command.setText(words.get(0));execute(words.get(0));}}}
 }
