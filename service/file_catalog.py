@@ -12,15 +12,28 @@ def kind(path):
     suffix=Path(path).suffix.lower()
     return next((k for k,extensions in KINDS.items() if suffix in extensions),'other')
 def inventory(base,query='',category='all',limit=120,oldest=False):
+    if not isinstance(query,str) or len(query)>1800 or category not in {'all','other',*KINDS}:
+        raise ValueError('Consulta o tipo de archivo inválido.')
+    if not isinstance(limit,int) or isinstance(limit,bool) or not 1<=limit<=50000:
+        raise ValueError('Límite inválido.')
+    terms=query.casefold().split()[:12]
+    filters=['instr(casefold(path),?)>0' for _ in terms]
+    params=list(terms)
+    if category!='all':
+        filters.append('file_kind(path)=?');params.append(category)
+    where=' WHERE '+' AND '.join(filters) if filters else ''
     with folder_library.LOCK,folder_library.db(base) as conn:
-        rows=conn.execute('SELECT path,bytes,modified FROM files ORDER BY modified '+('ASC' if oldest else 'DESC')+' LIMIT 50000').fetchall()
-    terms=query.casefold().split()[:12];items=[]
+        conn.create_function('casefold',1,lambda value:str(value).casefold(),deterministic=True)
+        conn.create_function('file_kind',1,kind,deterministic=True)
+        total=conn.execute('SELECT COUNT(*) FROM files'+where,params).fetchone()[0]
+        rows=conn.execute('SELECT path,bytes,modified FROM files'+where+' ORDER BY modified '+('ASC' if oldest else 'DESC')+' LIMIT ?',params+[limit]).fetchall()
+    items=[]
     for path,size,modified in rows:
         k=kind(path)
         if category!='all' and k!=category:continue
         if not all(t in path.casefold() for t in terms):continue
         items.append({'id':hashlib.sha256(path.encode()).hexdigest()[:20],'name':Path(path).name,'path':path,'bytes':size,'modified':modified,'kind':k})
-    return {'total':len(items),'files':items[:limit],'scope':'Nombre, carpeta, tipo y fecha del índice local. No se ha analizado el contenido de las fotos o documentos.'}
+    return {'total':total,'files':items,'truncated':total>len(items),'scope':'Nombre, carpeta, tipo y fecha del índice local completo. No se ha analizado el contenido de las fotos o documentos.'}
 def record(base,ident):
     if not isinstance(ident,str) or not re.fullmatch('[a-f0-9]{20}',ident):raise ValueError('Archivo no válido.')
     with folder_library.LOCK,folder_library.db(base) as conn:

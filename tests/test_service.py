@@ -18,6 +18,8 @@ import server
 import library_chat
 import muse_agent
 import account_identity
+import file_catalog
+import folder_library
 from tools_mcp import LibraryTools
 
 
@@ -50,6 +52,14 @@ class IndexedToolsTests(unittest.TestCase):
         for limit in (0,101,True):
             with self.assertRaises(ValueError):self.tools.search(limit=limit)
         with self.assertRaises(ValueError):self.tools.search(extension='../')
+    def test_general_search_does_not_drop_matches_after_first_50000(self):
+        with folder_library.db(self.base) as conn:
+            conn.executemany('INSERT OR REPLACE INTO files(path,bytes,modified) VALUES(?,?,?)',
+                [(str(self.base/f'item-{i}.txt'),1,100000-i) for i in range(50001)])
+            conn.execute('INSERT OR REPLACE INTO files(path,bytes,modified) VALUES(?,?,?)',(str(self.base/'nexus-last.pdf'),10,0))
+        result=file_catalog.inventory(self.base,'nexus-last','documents')
+        self.assertEqual(result['total'],1)
+        self.assertEqual(result['files'][0]['name'],'nexus-last.pdf')
     def test_symlink_does_not_allow_index_escape(self):
         link=self.base/'link.html'
         try:link.symlink_to(self.html)
