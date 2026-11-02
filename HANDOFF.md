@@ -22,6 +22,8 @@ Herramientas para IA, no una IA nueva ni solamente un buscador HTML. Muse es el 
 
 ## Pendientes reales, en orden
 
+El orden vigente y los criterios para cerrar cada frente están en [PLAN-HACKATON.md](PLAN-HACKATON.md), revisado con Art después del repaso de idiomas. Incluye los huecos de comprensión visual/SAM y continuidad del índice, además de las integraciones que siguen abajo.
+
 1. Completar el retorno OAuth en Meta y el proveedor Facebook en Firebase. Los datos están en META.md. El MCP no entrega el secreto ni permite escribir el retorno; configurarlos en los paneles protegidos sin copiar secretos al chat. Revisar el proveedor actual antes de modificar el proyecto Firebase compartido con ByFlow.
 2. Recuperar el fork OpenCode correcto de BeeCode. La copia C:\BYFLOW\beecode-work tiene README de Crush; el GitHub histórico ART449/beecode presenta una app Android. No usarlos como fuente buena por el nombre.
 3. Probar conversación y selección de archivos en la GUI con la biblioteca existente. Conservar catálogo, historial, versiones y credenciales locales; no subirlos.
