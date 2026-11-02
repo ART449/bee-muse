@@ -25,3 +25,8 @@ library-state.json
 desktop.json
 versiones/
 analisis-locales/
+android/.gradle/
+android/local.properties
+android/app/src/main/assets/companion/
+*.jks
+*.keystore
