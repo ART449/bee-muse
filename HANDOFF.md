@@ -12,7 +12,7 @@ Herramientas para IA, no una IA nueva ni solamente un buscador HTML. Muse es el 
 
 ## Comprobado
 
-- 16 pruebas locales aprobadas, incluyendo búsqueda de coincidencias más allá de los primeros 50 000 registros.
+- 18 pruebas locales aprobadas, incluyendo búsqueda de coincidencias más allá de los primeros 50 000 registros y regresión del decodificador de voz de Windows.
 - Prueba real de Muse: creación de archivo, respuesta al cálculo solicitado y selección de un archivo del índice MCP. Evidencia local en runtime/live-probe-windows.json, excluida de Git por ser salida de ejecución.
 - Cliente MCP externo descubre y consulta herramientas.
 - INBEEBOX local respondió a /health; no se enviaron mensajes.
@@ -25,8 +25,8 @@ Herramientas para IA, no una IA nueva ni solamente un buscador HTML. Muse es el 
 1. Completar el retorno OAuth en Meta y el proveedor Facebook en Firebase. Los datos están en META.md. El MCP no entrega el secreto ni permite escribir el retorno; configurarlos en los paneles protegidos sin copiar secretos al chat. Revisar el proveedor actual antes de modificar el proyecto Firebase compartido con ByFlow.
 2. Recuperar el fork OpenCode correcto de BeeCode. La copia C:\BYFLOW\beecode-work tiene README de Crush; el GitHub histórico ART449/beecode presenta una app Android. No usarlos como fuente buena por el nombre.
 3. Probar conversación y selección de archivos en la GUI con la biblioteca existente. Conservar catálogo, historial, versiones y credenciales locales; no subirlos.
-4. Dictado Meta: el CLI instalado rechazó la decodificación de WAV incluso con FFmpeg disponible. No marcarlo funcionando. La lectura de respuestas utiliza voz del equipo, no TTS de Meta.
-5. Comprobar visualmente el paquete Windows 0.4.0 actualizado, sin confundirlo con la app antigua que puede seguir abierta. Después de completar las integraciones, realizar la ronda de uso real, incluido Facebook, en las plataformas disponibles.
+4. Dictado Meta: transcripción de WAV sintético ya comprobada a través de voice_bridge. Faltan micrófono real y uso en otras plataformas. La lectura de respuestas utiliza voz del equipo, no TTS de Meta.
+5. Comprobar visualmente el paquete Windows 0.5.0 actualizado, sin confundirlo con la app antigua que puede seguir abierta. Después de completar las integraciones, realizar la ronda de uso real, incluido Facebook, en las plataformas disponibles.
 6. Android: ya existe cliente nativo y compiló su APK de depuración. ANDROID.md describe la conexión HTTPS mediante código de un solo uso, consulta local de carpetas, chat y voces del teléfono. Falta la ronda completa de uso en dispositivo, según el orden solicitado por Art.
 
 ## Ampliación del 2 de noviembre
@@ -46,6 +46,15 @@ Herramientas para IA, no una IA nueva ni solamente un buscador HTML. Muse es el 
 - Navegador HTTPS nativo en Android y Chromium en escritorio. La página remota carece de puente hacia archivos, terminal o credenciales de Bee-Muse. El navegador de escritorio pasó una prueba de navegación e aislamiento en Windows.
 - Queda comprobar físicamente la interacción con el Pixel. No se añadió escucha continua ni palabra de activación. Los gestos no se reciben por red o MCP; falta el adaptador de tareas entre Muse/INBEEBOX y el dispositivo. También falta navegación para agentes por MCP.
 - La ronda completa de pruebas en dispositivo sigue siendo posterior al cierre de las integraciones, como pidió Art. Las pruebas de compilación y de autorización de órdenes no equivalen a esa ronda.
+
+## Último minuto · voz, distribución y almacenamiento
+
+1. Código de la corrección de voz: `db5e46e`, compilaciones Windows/Linux/macOS aprobadas en `41513553354`. Android más reciente: `df1944b`, compilación y cinco pruebas de órdenes aprobadas en `41512152076`.
+2. La transcripción sintética real devolvió «Hola, esta es una prueba de voz de Bemius.» mediante voice_bridge, no sólo invocando el CLI por separado. La grafía del nombre corresponde a lo que reconoció el modelo. La salida hablada continúa usando voz del sistema.
+3. Se añadieron archivos ZIP/TAR.GZ antes de subir artefactos para conservar los permisos y enlaces de Linux/macOS. Descargar los artefactos de la compilación que incluya scripts/archive_desktop.py; no distribuir la carpeta antigua de desktop/ready.
+4. Art indicó usar I: para los archivos grandes. Compilaciones anteriores y entorno Python se trasladaron a `I:\Bee-Muse\2026-11-02`, comprobando inventarios y SHA-256 antes de retirar las copias de C:. Las rutas anteriores son enlaces de directorio. El código Git permanece en su ruta original. Las entregas nuevas van a `I:\Bee-Muse\2026-11-02\release-0.5.0`, accesible desde outputs/Bee-Muse-0.5.0. Mantener I: conectado para usar ese entorno o las compilaciones enlazadas. El recibo del traslado está en verified-moves.json del directorio I:.
+5. Firebase y Google Cloud ya tienen sesiones autorizadas. Para la API administrativa usar `x-goog-user-project: byflow-d3a0f`; el proyecto de cuota predeterminado causaba un rechazo ajeno al estado de la cuenta. El proveedor Facebook devolvió CONFIGURATION_NOT_FOUND en la consulta administrativa autenticada. No se escribió ningún proveedor ni se copiaron secretos.
+6. El MCP de Meta sigue sin entregar el secreto ni permitir configurar el retorno. El control del navegador falló al inicializar su entorno incluso después de reiniciarlo. El pendiente requiere ese acceso protegido; no pedir al usuario repetir sus contraseñas ni recibir el secreto por el chat.
 
 ## Comandos desde la raíz
 

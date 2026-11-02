@@ -13,14 +13,14 @@ python -m pip install -r requirements-mcp.txt -r requirements-voice.txt
 python run.py --open
 ```
 
-Instala Muse Code e inicia sesión con tu propia cuenta para conversar, ejecutar herramientas o intentar el dictado de Meta. No se distribuyen sesiones del propietario. El selector de carpeta del proyecto delimita el espacio de trabajo. Muse conserva sus controles de aprobación y ejecución.
+Instala Muse Code e inicia sesión con tu propia cuenta para conversar, ejecutar herramientas o usar la transcripción de Meta. No se distribuyen sesiones del propietario. El selector de carpeta del proyecto delimita el espacio de trabajo. Muse conserva sus controles de aprobación y ejecución.
 
 La primera apertura crea una biblioteca vacía en los datos de la aplicación. Puedes indexar tus carpetas desde la interfaz. En un equipo con una biblioteca configurada, se reutiliza su ubicación y se conservan sus datos.
 
 ## Estado
 
 - Windows: código recuperado de la aplicación existente. La nueva conexión con Muse creó un archivo real en una carpeta temporal y devolvió correctamente un cálculo solicitado.
-- Linux y macOS: servicio Python portable; compilaciones y pruebas automatizadas de la versión 0.4.0 completadas en CI. Falta el uso real de cada paquete en esos sistemas.
+- Linux y macOS: servicio Python portable; compilaciones y pruebas automatizadas de la versión 0.5.0 completadas en CI. Falta el uso real de cada paquete en esos sistemas.
 - Android: cliente nativo Java y APK de depuración 0.5.0 compilados en CI. Incluye conexión HTTPS, archivos, chat, voz del teléfono y nuevos módulos de control de pantalla, asistente, avisos hablados y navegador. Falta la ronda de uso en dispositivo; consulta [ANDROID.md](ANDROID.md).
 - Meta: aplicación Bee-Muse registrada en modo de desarrollo, propiedad de IArtLabs y con Facebook Login agregado. Falta configurar el retorno OAuth y Firebase y completar un acceso real; consulta [META.md](META.md).
 - INBEEBOX: herramientas MCP de consulta implementadas; salud local verificada.
@@ -40,7 +40,7 @@ npm ci
 npm run package
 ```
 
-La compilación se hace en cada sistema operativo. El resultado está en `desktop/ready/`. Los paquetes no están firmados ni notarizados. La matriz de GitHub Actions compila Windows, Linux y macOS y conserva sus artefactos.
+La compilación se hace en cada sistema operativo. El resultado está en `desktop/ready/`. `python scripts/archive_desktop.py` genera en `desktop/release/` ZIP para Windows y TAR.GZ para Linux y macOS, conservando en estos últimos permisos de ejecución y enlaces. Windows incluye `Instalar-Bee-Muse.cmd`, instalador y desinstalador. Los paquetes no están firmados ni notarizados. La matriz de GitHub Actions compila Windows, Linux y macOS y conserva sus artefactos.
 
 Consulta [MCP.md](MCP.md) para conectar otras IA, y [ANDROID.md](ANDROID.md) para el estado de Android.
 
