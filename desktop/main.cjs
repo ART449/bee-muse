@@ -3,6 +3,7 @@ const {app,BrowserWindow,Menu,dialog,shell,ipcMain}=require('electron');
 const fs=require('node:fs');
 const path=require('node:path');
 const {spawn,spawnSync}=require('node:child_process');
+const {openBrowser}=require('./browser.cjs');
 let mainWindow,backend,origin,ending=false;
 const storageKeys=new Set(['html-library-selection','html-library-stages','html-bee-history','muse-agent-history']);
 ipcMain.on('bee-storage',(event,action,key,value)=>{
@@ -30,6 +31,7 @@ function library(){
   return target;
 }
 function trustedMain(event){return mainWindow&&event.sender===mainWindow.webContents&&event.senderFrame===mainWindow.webContents.mainFrame&&event.senderFrame.url.startsWith(origin+'/');}
+ipcMain.handle('bee-open-browser',event=>{if(!trustedMain(event))throw Error('Solicitud no permitida.');openBrowser(mainWindow);return true;});
 ipcMain.handle('bee-open-account',async(event,flow,provider)=>{
   if(!trustedMain(event)||typeof flow!=='string'||!/^[-\w]{32}$/.test(flow)||!['google','facebook'].includes(provider))throw Error('Solicitud de acceso inválida.');
   const url=new URL(origin);url.hostname='localhost';url.pathname='/cuenta';url.search=new URLSearchParams({desktop:'1',flow,provider}).toString();
@@ -66,8 +68,9 @@ function menu(){
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     {label:'Bee-Muse',submenu:[{label:'Mis archivos · elegir carpetas',click:()=>mainWindow.loadURL(origin+'/')},{label:'Mostrar carpeta de la aplicación',click:()=>shell.openPath(app.getPath('userData'))},{type:'separator'},{role:'quit',label:'Salir'}]},
     {label:'Ir a',submenu:[['Mis archivos','/'],['Biblioteca HTML','/html'],['Carpetas y movimientos','/carpetas'],['Muse','/muse'],['Apuntadora','/apuntadora'],['Conexiones','/conexiones'],['Hackatón','/hackaton']].map(([label,route])=>({label,click:()=>mainWindow.loadURL(origin+route)}))},
+    {label:'Navegador',submenu:[{label:'Abrir navegador Bee-Muse',click:()=>openBrowser(mainWindow)}]},
     {label:'Vista',submenu:[{role:'reload',label:'Recargar vista'},{role:'resetZoom',label:'Tamaño original'},{role:'zoomIn',label:'Acercar'},{role:'zoomOut',label:'Alejar'},{role:'togglefullscreen',label:'Pantalla completa'}]},
-    {label:'Ayuda',submenu:[{label:'Acerca de Bee-Muse',click:()=>dialog.showMessageBox(mainWindow,{message:'Bee-Muse · IART Labs · La Colmena',detail:'Aplicación de escritorio 0.4.0. Biblioteca local y Muse en nube. Compilación de Windows; distribución pública y firma pendientes.'})}]}
+    {label:'Ayuda',submenu:[{label:'Acerca de Bee-Muse',click:()=>dialog.showMessageBox(mainWindow,{message:'Bee-Muse · IART Labs · La Colmena',detail:'Aplicación de escritorio 0.5.0. Biblioteca local y Muse en nube. Compilación de Windows; distribución pública y firma pendientes.'})}]}
   ]));
 }
 function startBackend(folder){return new Promise((resolve,reject)=>{
@@ -85,7 +88,7 @@ if(locked)app.whenReady().then(async()=>{
   try{
     fs.mkdirSync(app.getPath('userData'),{recursive:true});
     origin=await startBackend(library());
-    mainWindow=new BrowserWindow({title:'Bee-Muse · IArtLabs · 0.4.0',width:1280,height:860,minWidth:680,minHeight:560,backgroundColor:'#0a0a0f',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-muse-desktop'}});
+    mainWindow=new BrowserWindow({title:'Bee-Muse · IArtLabs · 0.5.0',width:1280,height:860,minWidth:680,minHeight:560,backgroundColor:'#0a0a0f',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-muse-desktop'}});
     mainWindow.on('page-title-updated',event=>event.preventDefault());
     safeWindow(mainWindow);menu();
     mainWindow.once('ready-to-show',()=>mainWindow.show());

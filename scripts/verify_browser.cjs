@@ -1,0 +1,20 @@
+'use strict';
+const {app}=require('electron');
+const path=require('node:path'),assert=require('node:assert/strict');
+app.setPath('userData',path.join(__dirname,'../runtime/browser-smoke-profile'));
+const {openBrowser,httpsURL}=require('../desktop/browser.cjs');
+const timer=setTimeout(()=>{console.error('Browser smoke timed out');app.exit(1);},45000);
+app.whenReady().then(async()=>{
+  const win=openBrowser(undefined,{show:false});
+  await new Promise(resolve=>win.webContents.once('did-finish-load',resolve));
+  assert.equal(httpsURL('example.com'),'https://example.com/');
+  for(const url of ['http://example.com','file:///C:/Windows/win.ini','javascript:alert(1)','https://user:secret@example.com'])assert.throws(()=>httpsURL(url));
+  const rejected=await win.webContents.executeJavaScript("BeeBrowser.action('go','file:///C:/Windows/win.ini')");assert.equal(rejected,false);
+  const loaded=await win.webContents.executeJavaScript("BeeBrowser.action('go','https://example.com')");assert.equal(loaded,true);
+  const child=win.contentView.children.find(v=>v.webContents&&v.webContents.id!==win.webContents.id);assert.ok(child);
+  const isolated=await child.webContents.executeJavaScript("({bridge:typeof window.BeeBrowser,desktop:typeof window.BeeDesktop,node:typeof require,title:document.title})");
+  assert.equal(isolated.bridge,'undefined');assert.equal(isolated.desktop,'undefined');assert.equal(isolated.node,'undefined');assert.match(isolated.title,/Example Domain/);
+  const prefs=child.webContents.getLastWebPreferences();assert.equal(prefs.nodeIntegration,false);assert.equal(prefs.sandbox,true);assert.equal(prefs.contextIsolation,true);
+  console.log(JSON.stringify({https:true,blockedUnsafeSchemes:true,remoteHasNoNativeBridge:true,nodeDisabled:true,rendererSandbox:true,title:isolated.title}));
+  clearTimeout(timer);win.close();app.exit(0);
+}).catch(e=>{console.error(e.message);clearTimeout(timer);app.exit(1);});

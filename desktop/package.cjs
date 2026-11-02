@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {packager}=require('@electron/packager');
 const stage=path.join(__dirname,'build','runtime');fs.mkdirSync(stage,{recursive:true});
-for(const file of ['main.cjs','preload.cjs'])fs.copyFileSync(path.join(__dirname,file),path.join(stage,file));
+for(const file of ['main.cjs','preload.cjs','browser.cjs','browser-preload.cjs','browser-ui.js','browser.html'])fs.copyFileSync(path.join(__dirname,file),path.join(stage,file));
 const metadata=require('./package.json');delete metadata.devDependencies;delete metadata.scripts;
 fs.writeFileSync(path.join(stage,'package.json'),JSON.stringify(metadata,null,2));
 packager({dir:stage,name:'Bee-Muse',platform:process.platform,arch:process.arch,

@@ -21,12 +21,14 @@ La primera apertura crea una biblioteca vacía en los datos de la aplicación. P
 
 - Windows: código recuperado de la aplicación existente. La nueva conexión con Muse creó un archivo real en una carpeta temporal y devolvió correctamente un cálculo solicitado.
 - Linux y macOS: servicio Python portable; compilaciones y pruebas automatizadas de la versión 0.4.0 completadas en CI. Falta el uso real de cada paquete en esos sistemas.
-- Android: cliente nativo Java y APK de depuración compilados en CI. Incluye conexión HTTPS con emparejamiento, consulta local de carpetas, chat y voz del teléfono. Falta la ronda de uso en dispositivo; consulta [ANDROID.md](ANDROID.md).
+- Android: cliente nativo Java y APK de depuración 0.5.0 compilados en CI. Incluye conexión HTTPS, archivos, chat, voz del teléfono y nuevos módulos de control de pantalla, asistente, avisos hablados y navegador. Falta la ronda de uso en dispositivo; consulta [ANDROID.md](ANDROID.md).
 - Meta: aplicación Bee-Muse registrada en modo de desarrollo, propiedad de IArtLabs y con Facebook Login agregado. Falta configurar el retorno OAuth y Firebase y completar un acceso real; consulta [META.md](META.md).
 - INBEEBOX: herramientas MCP de consulta implementadas; salud local verificada.
 - BeeCode: integración pendiente; no se sustituye el fork correcto por las variantes Android o Crush.
 
 Conversación con historial, ejecución de herramientas y terminal, nueve animaciones de CyberBee/OctoHype asociadas a estados, proveedor Facebook preparado y controles de voz. Consulta [VALIDATION.md](VALIDATION.md) para distinguir lo probado de lo pendiente; especialmente dictado Meta, OAuth real y Android.
+
+El escritorio 0.5.0 incorpora navegador Chromium mediante Electron: se abre desde el menú Navegador o el botón en Muse. Tiene dirección HTTPS, atrás, adelante, recarga y guardado de descargas. El contenido remoto está separado de las herramientas locales; no dispone de Node ni del puente de archivos, terminal o identidad. La navegación para agentes mediante MCP todavía no está conectada.
 
 ## Compilar escritorio
 

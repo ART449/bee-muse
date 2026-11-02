@@ -15,7 +15,7 @@ $shortcut=$shell.CreateShortcut($menu);$shortcut.TargetPath=Join-Path $installRo
 $entry='HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\IArtLabsBeeMuse'
 New-Item -Path $entry -Force | Out-Null
 New-ItemProperty -Path $entry -Name DisplayName -Value 'Bee-Muse · IArtLabs' -Force | Out-Null
-New-ItemProperty -Path $entry -Name DisplayVersion -Value '0.4.0' -Force | Out-Null
+New-ItemProperty -Path $entry -Name DisplayVersion -Value '0.5.0' -Force | Out-Null
 New-ItemProperty -Path $entry -Name Publisher -Value 'IArtLabs' -Force | Out-Null
 New-ItemProperty -Path $entry -Name UninstallString -Value ('powershell.exe -NoProfile -ExecutionPolicy Bypass -File "'+(Join-Path $installRoot 'uninstall_windows.ps1')+'"') -Force | Out-Null
 Write-Output ('Instalado en '+$installRoot+'. El catálogo y el historial se conservan en sus ubicaciones actuales.')

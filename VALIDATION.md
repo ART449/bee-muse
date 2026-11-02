@@ -11,6 +11,13 @@ Las pruebas sintéticas no contienen documentos ni credenciales del propietario.
 
 ## Pendientes explícitos
 
+### Ampliación 0.5.0
+
+- Android: la compilación de los nuevos servicios, actividades y recursos terminó correctamente en la ejecución [Build Bee-Muse Android](https://github.com/ART449/bee-muse/actions/runs/41510052508). Se descargó su APK. Aún no se probó el uso físico de gestos, notificaciones, rol de asistente ni navegador en el Pixel.
+- Navegador de escritorio: la prueba local con Electron abrió `https://example.com`, comprobó el título, rechazó esquemas locales/inseguros y direcciones con credenciales y verificó que el contenido remoto no recibe Node, BeeDesktop ni BeeBrowser. Se comprobó aislamiento y navegación; la revisión visual completa y el uso en otros sistemas siguen pendientes. El script reproducible está en `scripts/verify_browser.cjs` y necesita Electron instalado en desktop/node_modules.
+- Las nuevas pruebas unitarias de órdenes Android comprueban que frases de conversación no se transforman en acciones, así como coordenadas, arrastre y normalización del español. Su resultado se registra aparte de la compilación previa.
+- Los nuevos módulos no sustituyen la integración pendiente de BeeCode, el bus completo, el dictado de Meta ni el cierre OAuth de Firebase.
+
 - Facebook: el flujo está implementado y se prueba su validación con datos simulados. La aplicación Bee-Muse ya está registrada en Meta con ID `1747909204005226`, en modo de desarrollo, asignada al portfolio IArtLabs y con `FB_LOGIN` agregado. Los tres cambios fueron autorizados por Art y comprobados mediante lecturas posteriores del MCP oficial. Falta configurar el retorno OAuth y el proveedor en Firebase y completar un acceso real. No se han copiado secretos de Meta. [Estado y datos de configuración](META.md).
 - Dictado de Meta: la grabación y el adaptador están implementados. La prueba real con audio sintético falló porque el CLI de Muse en este Windows no reconoció un decodificador de audio, incluso habiendo FFmpeg disponible. No se afirma que el dictado esté funcionando.
 - Voz de respuesta: utiliza síntesis del sistema/navegador con activación explícita; no se presenta como una voz generada por Meta.

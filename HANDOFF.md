@@ -40,6 +40,17 @@ Herramientas para IA, no una IA nueva ni solamente un buscador HTML. Muse es el 
 
 ## Comandos desde la raíz
 
+## Ampliación 0.5.0 · asistente Android y navegador
+
+- Código Android versionado en `ac8c274` y corrección de API de notificaciones en `c1f2ece`. Compilación Android correcta, ejecución `41510052508`; APK descargado fuera del repositorio en outputs/Bee-Muse-Android-0.5.0/app-debug.apk.
+- Nuevos comandos locales explícitos, servicio de accesibilidad con comparación de aplicación destino y rechazo de pantallas protegidas, registros de resultados, asistente Android con sesión propia y reconocimiento delegado al servicio del sistema.
+- Avisos hablados optativos por aplicación; nombres de remitente sólo cuando se habilitan e identifican. No se lee el cuerpo de mensajes ni se envía al modelo. Con el teléfono bloqueado no se anuncian notificaciones.
+- Navegador HTTPS nativo en Android y Chromium en escritorio. La página remota carece de puente hacia archivos, terminal o credenciales de Bee-Muse. El navegador de escritorio pasó una prueba de navegación e aislamiento en Windows.
+- Queda comprobar físicamente la interacción con el Pixel. No se añadió escucha continua ni palabra de activación. Los gestos no se reciben por red o MCP; falta el adaptador de tareas entre Muse/INBEEBOX y el dispositivo. También falta navegación para agentes por MCP.
+- La ronda completa de pruebas en dispositivo sigue siendo posterior al cierre de las integraciones, como pidió Art. Las pruebas de compilación y de autorización de órdenes no equivalen a esa ronda.
+
+## Comandos desde la raíz
+
 Pruebas sin cuota: `python -m unittest discover -s tests -v` después de instalar requirements-mcp.txt.
 
 Prueba real opcional, consume cuota de la sesión propia: `python scripts/verify_real_muse.py`.
