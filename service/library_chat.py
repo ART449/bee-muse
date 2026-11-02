@@ -2,6 +2,7 @@
 import json,re,threading,uuid
 from pathlib import Path
 import html_assistant as ai
+import muse_agent
 
 STORE_LOCK=threading.Lock()
 def load(base):
@@ -11,8 +12,11 @@ def load(base):
 def propose(catalog,message,history):
     if not isinstance(message,str) or not message.strip() or len(message)>1800:raise ValueError('Escribe una solicitud de hasta 1800 caracteres.')
     plain=message.casefold().strip(' .!¡¿?')
-    if plain in ('hola','buenas','hey','qué puedes hacer','que puedes hacer'):
-        return {'message':'Hola. Puedo buscar páginas, proponerte una colección o agrupar tu biblioteca por proyectos. Prueba: «Organiza mis HTML por proyectos».','files':[],'proposal':None,'candidateCount':0}
+    searching=bool(re.search(r'\b(busca|buscar|encuentra|encontrar|localiza|localizar|muestra|muéstrame|muestrame)\b',plain))
+    organizing=bool(re.search(r'organiz|organis|agrup|clasific|colecci|etiquet',plain))
+    # Catalog lookup is a tool available to Muse, not a gate on conversation.
+    if not searching and not organizing:
+        return muse_agent.converse(message,history)
     if 'proyecto' in plain and re.search(r'organiz|organis|agrup|clasific',plain):
         groups=project_groups(catalog)
         return {'message':'Puedo agrupar tus HTML en '+str(len(groups))+' colecciones según el proyecto identificado en el inventario. Es organización lógica por procedencia, no una nueva lectura de todo el contenido. Revisa la propuesta y pulsa para guardarla.','files':[],'proposal':{'mode':'projects','name':'Por proyectos','count':len(groups)},'candidateCount':sum(len(v) for v in groups.values())}
@@ -27,7 +31,7 @@ def propose(catalog,message,history):
         if key not in groups or score>groups[key][0]:groups[key]=(score,r)
     ranked=sorted(groups.values(),key=lambda item:(item[0],item[1].get('modified') or 0),reverse=True)
     candidates=[r for score,r in ranked if score>0][:60] if terms else [r for _,r in ranked[:40]]
-    if not candidates:return {'message':'No encontré coincidencias por nombre o título. Prueba el nombre del proyecto o una palabra de la página.','files':[],'proposal':None}
+    if not candidates:return muse_agent.converse(message,history)
     inventory=[{'id':r['id'],'titulo':r.get('title') or r['name'],'nombre':r['name'],'proyecto':r.get('project','')} for r in candidates]
     schema={'type':'object','properties':{'mensaje':{'type':'string','minLength':1},'coleccion':{'type':'string'},'ids':{'type':'array','items':{'type':'string'}},'etiquetas':{'type':'array','items':{'type':'string'}}},'required':['mensaje','coleccion','ids','etiquetas'],'additionalProperties':False}
     schema['properties']['ids']['items']['enum']=[r['id'] for r in candidates]

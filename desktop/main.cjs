@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {spawn,spawnSync}=require('node:child_process');
 let mainWindow,backend,origin,ending=false;
-const storageKeys=new Set(['html-library-selection','html-library-stages','html-bee-history']);
+const storageKeys=new Set(['html-library-selection','html-library-stages','html-bee-history','muse-agent-history']);
 ipcMain.on('bee-storage',(event,action,key,value)=>{
   if(!mainWindow||event.sender!==mainWindow.webContents||!event.senderFrame?.url.startsWith(origin+'/')||!storageKeys.has(key)){event.returnValue=null;return;}
   const file=path.join(app.getPath('userData'),'library-state.json');
@@ -14,20 +14,27 @@ ipcMain.on('bee-storage',(event,action,key,value)=>{
     else event.returnValue=null;
   }catch{event.returnValue=null;}
 });
-app.setName('Beamuse');
-app.setPath('userData',path.join(app.getPath('appData'),'Beamuse-Client'));
+app.setName('Bee-Muse');
+app.setPath('userData',path.join(app.getPath('appData'),'Bee-Muse'));
 const locked=app.requestSingleInstanceLock();
 if(!locked)app.quit();
 app.on('second-instance',()=>{if(mainWindow){mainWindow.restore();mainWindow.show();mainWindow.focus();}});
 function resources(){return app.isPackaged?process.resourcesPath:__dirname;}
 function configFile(){return path.join(app.getPath('userData'),'desktop.json');}
 function library(){
-  const target=path.join(app.getPath('userData'),'library');
+  let target=path.join(app.getPath('userData'),'library');
+  try{const saved=JSON.parse(fs.readFileSync(configFile(),'utf8'));if(typeof saved.library==='string'&&path.isAbsolute(saved.library)&&fs.existsSync(saved.library))target=saved.library;}catch{}
   fs.mkdirSync(target,{recursive:true});
-  fs.cpSync(path.join(resources(),'library-template'),target,{recursive:true,force:false,errorOnExist:false});
+  const template=path.join(resources(),'library-template');
+  for(const name of fs.readdirSync(template)){const source=path.join(template,name),destination=path.join(target,name);if(/\.(html|js|css)$/.test(name)||name==='mascotas')fs.cpSync(source,destination,{recursive:true,force:true});else if(!fs.existsSync(destination))fs.cpSync(source,destination,{recursive:true,force:false,errorOnExist:false});}
   return target;
 }
 function trustedMain(event){return mainWindow&&event.sender===mainWindow.webContents&&event.senderFrame===mainWindow.webContents.mainFrame&&event.senderFrame.url.startsWith(origin+'/');}
+ipcMain.handle('bee-open-account',async(event,flow,provider)=>{
+  if(!trustedMain(event)||typeof flow!=='string'||!/^[-\w]{32}$/.test(flow)||!['google','facebook'].includes(provider))throw Error('Solicitud de acceso inválida.');
+  const url=new URL(origin);url.hostname='localhost';url.pathname='/cuenta';url.search=new URLSearchParams({desktop:'1',flow,provider}).toString();
+  await shell.openExternal(url.href);return true;
+});
 ipcMain.handle('bee-choose-folders',async event=>{
   if(!trustedMain(event))throw Error('Solicitud no permitida.');
   const result=await dialog.showOpenDialog(mainWindow,{title:'Elige las carpetas que quieres indexar',properties:['openDirectory','multiSelections']});
@@ -45,7 +52,7 @@ function external(url){try{const u=new URL(url);if(['https:','http:'].includes(u
 function safeWindow(win){
   win.webContents.on('will-navigate',(event,url)=>{if(!url.startsWith(origin+'/')){event.preventDefault();external(url);}});
   win.webContents.setWindowOpenHandler(({url})=>{external(url);return {action:'deny'};});
-  win.webContents.session.setPermissionRequestHandler((_wc,_permission,callback)=>callback(false));
+  win.webContents.session.setPermissionRequestHandler((contents,permission,callback,details)=>{const url=details.requestingUrl||contents.getURL();const audioOnly=Array.isArray(details.mediaTypes)&&details.mediaTypes.length>0&&details.mediaTypes.every(type=>type==='audio');callback(contents===mainWindow.webContents&&url.startsWith(origin+'/')&&permission==='media'&&audioOnly);});
   win.webContents.on('will-attach-webview',event=>event.preventDefault());
 }
 async function chooseLibrary(){
@@ -57,7 +64,7 @@ async function chooseLibrary(){
 }
 function menu(){
   Menu.setApplicationMenu(Menu.buildFromTemplate([
-    {label:'Beamuse',submenu:[{label:'Mis archivos · elegir carpetas',click:()=>mainWindow.loadURL(origin+'/')},{label:'Mostrar carpeta de la aplicación',click:()=>shell.openPath(app.getPath('userData'))},{type:'separator'},{role:'quit',label:'Salir'}]},
+    {label:'Bee-Muse',submenu:[{label:'Mis archivos · elegir carpetas',click:()=>mainWindow.loadURL(origin+'/')},{label:'Mostrar carpeta de la aplicación',click:()=>shell.openPath(app.getPath('userData'))},{type:'separator'},{role:'quit',label:'Salir'}]},
     {label:'Ir a',submenu:[['Mis archivos','/'],['Biblioteca HTML','/html'],['Carpetas y movimientos','/carpetas'],['Muse','/muse'],['Apuntadora','/apuntadora'],['Conexiones','/conexiones'],['Hackatón','/hackaton']].map(([label,route])=>({label,click:()=>mainWindow.loadURL(origin+route)}))},
     {label:'Vista',submenu:[{role:'reload',label:'Recargar vista'},{role:'resetZoom',label:'Tamaño original'},{role:'zoomIn',label:'Acercar'},{role:'zoomOut',label:'Alejar'},{role:'togglefullscreen',label:'Pantalla completa'}]},
     {label:'Ayuda',submenu:[{label:'Acerca de Bee-Muse',click:()=>dialog.showMessageBox(mainWindow,{message:'Bee-Muse · IART Labs · La Colmena',detail:'Aplicación de escritorio 0.2.0. Biblioteca local y Muse en nube. Compilación de Windows; distribución pública y firma pendientes.'})}]}
@@ -81,7 +88,7 @@ if(locked)app.whenReady().then(async()=>{
     mainWindow=new BrowserWindow({title:'Bee-Muse · IART Labs',width:1280,height:860,minWidth:680,minHeight:560,backgroundColor:'#0a0a0f',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-muse-desktop'}});
     safeWindow(mainWindow);menu();
     mainWindow.once('ready-to-show',()=>mainWindow.show());
-    await mainWindow.loadURL(origin+'/');
+    await mainWindow.loadURL(origin+'/muse');
   }catch(error){dialog.showErrorBox('No se pudo abrir Bee-Muse',error.message);app.quit();}
 });
 app.on('window-all-closed',()=>app.quit());

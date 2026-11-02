@@ -20,6 +20,8 @@ import folder_library
 import jules_connector
 import account_identity
 import muse_bridge
+import muse_agent
+import voice_bridge
 import html_indexer
 import file_catalog
 import chingaquedito
@@ -150,6 +152,15 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send((BASE/'jules.html').read_bytes(),'text/html; charset=utf-8')
             if route == '/jules.js':
                 return self.send((BASE/'jules.js').read_bytes(),'text/javascript; charset=utf-8')
+            if route in ('/api/muse/workspace','/api/muse/job'):
+                if self.headers.get('X-Library-Token') != SESSION_TOKEN:
+                    return self.send({'error':'Solicitud local no autorizada'},status=403)
+                return self.send(muse_agent.workspace() if route.endswith('workspace') else muse_agent.job(q.get('id',[''])[0]))
+            if route == '/api/account/desktop':
+                if self.headers.get('X-Library-Token') != SESSION_TOKEN:
+                    return self.send({'error':'Solicitud local no autorizada'},status=403)
+                key,data=account_identity.poll_desktop(q.get('flow',[''])[0])
+                return self.send(data,cookie='bee_identity='+key+'; Path=/; HttpOnly; SameSite=Strict; Max-Age=3600' if key else None)
             if route == '/api/jules/status':
                 return self.send(jules_connector.status(BASE))
             if route in ('/cuenta','/muse','/hackaton','/apuntadora'):
@@ -183,6 +194,13 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(p.read_bytes(),'application/zip',attachment='bee-muse-version.zip')
             if route == '/abejitas':
                 return self.send((BASE/'mascotas.html').read_bytes(),'text/html; charset=utf-8')
+            if route in ('/companion.js','/companion.css','/voice.js'):
+                return self.send((BASE/route[1:]).read_bytes(),'text/javascript; charset=utf-8' if route.endswith('.js') else 'text/css; charset=utf-8')
+            if route.startswith('/mascotas/cyberbee-octohype/'):
+                name=route.removeprefix('/mascotas/cyberbee-octohype/')
+                allowed={'idle.gif','waving.gif','waiting.gif','running.gif','review.gif','jumping.gif','failed.gif','running-left.gif','running-right.gif','still.png'}
+                if name not in allowed:return self.send({'error':'No encontrado'},status=404)
+                return self.send((BASE/'mascotas'/'cyberbee-octohype'/name).read_bytes(),'image/png' if name.endswith('.png') else 'image/gif')
             if route == '/bee-sprites.css':
                 return self.send((BASE/'bee-sprites.css').read_bytes(),'text/css; charset=utf-8')
             if route == '/iart-theme.css':
@@ -312,14 +330,14 @@ class Handler(BaseHTTPRequestHandler):
             return self.send({'error':'Solicitud local no autorizada'},status=403)
         folder_routes={'/api/folders/index','/api/folders/plan','/api/folders/apply','/api/folders/snapshot-plan','/api/folders/snapshot-save','/api/folders/create'}
         jules_routes={'/api/jules/key','/api/jules/forget','/api/jules/check'}
-        account_routes={'/api/account/verify','/api/account/logout'}
-        muse_routes={'/api/muse/account','/api/muse/probe'}
+        account_routes={'/api/account/verify','/api/account/logout','/api/account/start-desktop','/api/account/finish-desktop'}
+        muse_routes={'/api/muse/account','/api/muse/probe','/api/muse/workspace','/api/muse/start','/api/muse/transcribe'}
         chingaquedito_routes={'/api/chingaquedito/activar','/api/chingaquedito/frente','/api/chingaquedito/editar','/api/chingaquedito/estado','/api/chingaquedito/volver','/api/chingaquedito/idea','/api/chingaquedito/borrar-frente','/api/chingaquedito/borrar-idea'}
         if self.path not in ('/api/library/index','/api/files/ask','/api/snapshot','/api/versions/restore','/api/ai/analyze','/api/ai/chat','/api/collections/apply','/api/connections') and self.path not in folder_routes|jules_routes|account_routes|muse_routes|chingaquedito_routes:
             return self.send({'error':'No encontrado'},status=404)
         try:
             size = int(self.headers.get('Content-Length','0'))
-            if not 0<size<(20000 if self.path in ('/api/library/index','/api/files/ask','/api/ai/chat','/api/collections/apply','/api/connections') or self.path in folder_routes|account_routes|chingaquedito_routes else 2048):
+            if not 0<size<(4000000 if self.path=='/api/muse/transcribe' else 120000 if self.path=='/api/muse/start' else 20000 if self.path in ('/api/library/index','/api/files/ask','/api/ai/chat','/api/collections/apply','/api/connections') or self.path in folder_routes|account_routes|chingaquedito_routes or self.path=='/api/muse/start' else 2048):
                 raise ValueError()
             body = json.loads(self.rfile.read(size))
             if self.path in ('/api/library/index','/api/files/ask'):
@@ -332,11 +350,17 @@ class Handler(BaseHTTPRequestHandler):
                 try:
                     if not isinstance(body,dict):raise ValueError('Solicitud no válida.')
                     if self.path=='/api/account/logout':return self.send(account_identity.logout(self.headers.get('Cookie','')),cookie='bee_identity=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0')
+                    if self.path=='/api/account/start-desktop':return self.send(account_identity.start_desktop(body.get('provider')))
+                    if self.path=='/api/account/finish-desktop':return self.send(account_identity.finish_desktop(BASE,body.get('flow'),body.get('idToken')))
                     token,data=account_identity.verify(BASE,body.get('idToken'))
                     return self.send(data,cookie='bee_identity='+token+'; Path=/; HttpOnly; SameSite=Strict; Max-Age=3600')
                 except (ValueError,TypeError) as error:return self.send({'error':str(error) if isinstance(error,ValueError) else 'No se pudo comprobar Google.'},status=400)
             if self.path in muse_routes:
                 try:
+                    if not isinstance(body,dict):raise ValueError('Solicitud no válida.')
+                    if self.path=='/api/muse/transcribe':return self.send(voice_bridge.transcribe(body))
+                    if self.path=='/api/muse/workspace':return self.send(muse_agent.workspace(body.get('path')))
+                    if self.path=='/api/muse/start':return self.send(muse_agent.start(body),status=202)
                     if self.path=='/api/muse/account':return self.send(muse_bridge.account_status())
                     if not html_assistant.LOCK.acquire(blocking=False):raise ValueError('Muse está atendiendo otra solicitud.')
                     try:return self.send(muse_bridge.probe(BASE))

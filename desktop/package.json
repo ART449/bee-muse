@@ -1,8 +1,8 @@
 {
   "name": "bee-muse-desktop",
   "productName": "Bee-Muse",
-  "version": "0.2.0",
-  "description": "Biblioteca visual y organizador de IART Labs · La Colmena",
+  "version": "0.3.0",
+  "description": "Herramientas para IA, conversación con Muse y biblioteca local · IArtLabs",
   "author": "IART Labs",
   "private": true,
   "main": "main.cjs",

@@ -1,0 +1,51 @@
+{
+  "sourceArchive": "CyberBee-OctoHype-sources-and-validation.zip",
+  "author": "IArtLabs",
+  "states": {
+    "idle": {
+      "source": "final/previews/idle.gif",
+      "sha256": "1cd003fd5a9d03ef633fcc21df94d9732f05f7428674316f8ebba6cc45f24aab",
+      "bytes": 76122
+    },
+    "waving": {
+      "source": "final/previews/waving.gif",
+      "sha256": "dff38d93cee5a833a30bd254a6140ad12d3ca4b458a673ec3667ce8734cafaf9",
+      "bytes": 48754
+    },
+    "waiting": {
+      "source": "final/previews/waiting.gif",
+      "sha256": "d3b639c95b7e1d9a0785af614557a45960f6c43c7bd207d985b13805adf62814",
+      "bytes": 71736
+    },
+    "running": {
+      "source": "final/previews/running.gif",
+      "sha256": "422f5b95bdee8d230222630c11035bc5a8f7c367b76c6f0f033c0cd002640cc5",
+      "bytes": 73710
+    },
+    "review": {
+      "source": "final/previews/review.gif",
+      "sha256": "028da0561b8e0c2860e4e31fabb9ff03f33fcacc7ec409666de9a827ab894c2e",
+      "bytes": 73729
+    },
+    "jumping": {
+      "source": "final/previews/jumping.gif",
+      "sha256": "8eaafe95f4a81934cb9b548b7833c285da39ca53db3ef75c3d4af945e2b5d5dd",
+      "bytes": 58454
+    },
+    "failed": {
+      "source": "final/previews/failed.gif",
+      "sha256": "b0d1ac8c15f13f8a831d4d5b799289d19f66e40cecd6fba9c04bb58a63fff33c",
+      "bytes": 92837
+    },
+    "running-left": {
+      "source": "final/previews/running-left.gif",
+      "sha256": "98e59a23714810bab32cc8e793a7aee06a45b0206adf5adae0f20ae0d85f053e",
+      "bytes": 96705
+    },
+    "running-right": {
+      "source": "final/previews/running-right.gif",
+      "sha256": "a8127743204364eb2e3249dcf7323471a6051ce41108d12fb471e2587106f566",
+      "bytes": 96379
+    }
+  }
+}
