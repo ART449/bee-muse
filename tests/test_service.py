@@ -91,6 +91,17 @@ class IdentityTests(unittest.TestCase):
         with patch.object(account_identity,'config',return_value={'apiKey':'test','authDomain':'test','projectId':'test-project','appId':'test'}),patch.object(account_identity.urllib.request,'urlopen') as request:
             with self.assertRaises(ValueError):account_identity.verify(Path('.'),self.token('password'))
             request.assert_not_called()
+    def test_desktop_login_is_bound_to_nonce_provider_and_consumed(self):
+        flow=account_identity.start_desktop('facebook')['flow']
+        self.assertEqual(account_identity.poll_desktop(flow)[1],{'completed':False})
+        key='synthetic-session'
+        data={'authenticated':True,'user':{'provider':'facebook.com'}}
+        with patch.object(account_identity,'verify',return_value=(key,data)):
+            account_identity.finish_desktop(Path('.'),flow,'synthetic-token')
+        with patch.object(account_identity,'current',return_value=data):
+            returned,result=account_identity.poll_desktop(flow)
+            self.assertEqual(returned,key);self.assertTrue(result['completed'])
+        with self.assertRaises(ValueError):account_identity.poll_desktop(flow)
 
 
 class HttpTests(unittest.TestCase):

@@ -79,4 +79,4 @@ $('beeForm').onsubmit=e=>{e.preventDefault();const text=$('beeInput').value;$('b
 
 async function restoreSelection(){for(const [path,r] of [...selection]){if(String(r.id).length===20)continue;try{const res=await fetch('/api/resolve?path='+encodeURIComponent(path));if(res.ok)selection.set(path,await res.json())}catch{}}save();load()}restoreSelection();setInterval(()=>{if(!response?.allTotal&&!onlySelected)load()},12000);
 </script>
-<script src="/apuntadora.js"></script><script src="/primer-arranque.js"></script><script src="/companion.js"></script></body></html>
+<script src="/apuntadora.js"></script><script src="/primer-arranque.js"></script><script src="/companion.js"></script><script>(()=>{const id=new URLSearchParams(location.search).get('locate');if(id&&/^[a-f0-9]{20}$/.test(id))fetch('/api/record?id='+encodeURIComponent(id)).then(r=>{if(!r.ok)throw Error();return r.json();}).then(record=>openPreview(record,record.title||record.name)).catch(()=>toast('No se pudo localizar ese archivo.'));})();</script></body></html>

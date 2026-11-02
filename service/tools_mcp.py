@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import sqlite3
+import sys
 import time
 from urllib.parse import quote, urlencode, urlsplit
 from urllib.request import Request, urlopen
@@ -132,13 +133,19 @@ class LibraryTools:
             raise ValueError('El tamaño de lectura debe estar entre 1 y 64000 caracteres.')
         row = self.record(ident)
         path = Path(row['path'])
-        if path.suffix.lower() not in TEXT_TYPES or path.is_symlink():
+        if not path.is_absolute() or path.suffix.lower() not in TEXT_TYPES or path.is_symlink():
             raise ValueError('Tipo no permitido para lectura de texto.')
         info = path.stat()
         if getattr(info,'st_file_attributes',0)&(0x400|0x1000|0x40000|0x400000):
             raise ValueError('No se descargan archivos de nube ni se siguen enlaces.')
         resolved = path.resolve(strict=True)
-        if resolved != path.absolute() or not self.visible(str(resolved)):
+        # Canonicalization also expands Windows short names and macOS /var.
+        # Check real link nodes rather than treating every spelling change as a link.
+        for parent in path.parents:
+            system_alias=sys.platform=='darwin' and str(parent) in ('/var','/tmp','/etc')
+            if not system_alias and (parent.is_symlink() or getattr(parent.lstat(),'st_file_attributes',0)&0x400):
+                raise ValueError('El archivo se encuentra detrás de un enlace.')
+        if not self.visible(str(resolved)):
             raise ValueError('El archivo se encuentra detrás de un enlace o fuera del índice.')
         with path.open('rb') as handle:
             raw = handle.read(256001)

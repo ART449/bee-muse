@@ -85,12 +85,19 @@ def converse(message, history=None, selected_workspace=None):
             context += ('La carpeta de trabajo elegida es '+str(work)+'. ' if target else
                         'No se ha elegido un proyecto: conversa normalmente; el espacio temporal no contiene los archivos del usuario. Para trabajar en ellos pide elegir la carpeta en el panel Muse. ')
             prompt.write_text(context+'\nConversación:\n'+json.dumps(turns,ensure_ascii=False),encoding='utf-8')
+            shape=root/'response-schema.json'
+            shape.write_text(json.dumps({'type':'object','properties':{
+                'message':{'type':'string'},
+                'selectedIds':{'type':'array','items':{'type':'string'},'maxItems':12}},
+                'required':['message','selectedIds'],'additionalProperties':False}),encoding='utf-8')
+            with prompt.open('a',encoding='utf-8') as handle:
+                handle.write('\nEntrega message como respuesta natural. selectedIds lleva sólo identificadores exactos de archivos devueltos por las herramientas MCP que quieras mostrar o señalar; usa [] cuando no corresponda. No inventes identificadores.')
             command=[str(exe),'exec','--json','--preset','native-basic','--workspace',str(work),
                      '--model',muse_bridge.MODEL,'--contributor-mode','off',
                      '--reasoning-effort','low','--max-model-steps','16',
                      '--approval-mode','on-request','--disable-reminders',
                      '--disable-request-user-input','--no-foreign-personal-context',
-                     '--no-session-log','--prompt-file',str(prompt)]
+                     '--no-session-log','--prompt-file',str(prompt),'--output-schema',str(shape)]
             indexed=indexed_tools_config()
             if indexed:
                 command += ['--config','mcpServers.bee-muse='+json.dumps(indexed['bee-muse'],ensure_ascii=False)]
@@ -121,7 +128,27 @@ def converse(message, history=None, selected_workspace=None):
             except subprocess.TimeoutExpired:
                 raise ValueError('Muse alcanzó el tiempo límite. Puede haber cambios parciales: revisa el proyecto antes de repetir la tarea.') from None
             muse_bridge.LAST_SUCCESS=dt.datetime.now().timestamp()
-            return {'message':final[:60000],'files':[],'proposal':None,'candidateCount':0,
+            selected=[]
+            try:
+                answer=json.loads(final)
+                if isinstance(answer,dict) and isinstance(answer.get('message'),str):
+                    final=answer['message']
+                    selected=answer.get('selectedIds',[]) if isinstance(answer.get('selectedIds'),list) else []
+            except ValueError:pass
+            files=[]
+            library=os.environ.get('BEE_LIBRARY_DIR')
+            if library and selected:
+                try:
+                    rows=json.loads((Path(library)/'catalog.json').read_text(encoding='utf-8')).get('files',[])
+                    allowed={str(row.get('id')):row for row in rows if isinstance(row,dict)}
+                    for ident in selected[:12]:
+                        if not isinstance(ident,str):continue
+                        key=ident.removeprefix('html:')
+                        if key in allowed:
+                            row=allowed[key]
+                            files.append({'id':key,'title':row.get('title') or row.get('name') or key,'name':row.get('name','')})
+                except (OSError,ValueError,TypeError):pass
+            return {'message':final[:60000],'files':files,'proposal':None,'candidateCount':0,
                     'mode':'conversation','provider':'Muse Code · Meta','tools':tools,
                     'workspace':str(target) if target else None}
     finally:
