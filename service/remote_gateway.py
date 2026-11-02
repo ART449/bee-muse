@@ -92,6 +92,9 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Content-Type',upstream.getheader('Content-Type','application/json'))
             self.send_header('Content-Length',str(len(data)));self.send_header('Cache-Control','no-store')
             self.send_header('X-Content-Type-Options','nosniff')
+            for header in ('Content-Security-Policy','Referrer-Policy','Content-Disposition'):
+                value=upstream.getheader(header)
+                if value:self.send_header(header,value)
             self.end_headers();self.wfile.write(data);conn.close()
         except (OSError,ValueError,http.client.HTTPException):
             self.send_json({'error':'El servicio local no completó la solicitud.'},502)
