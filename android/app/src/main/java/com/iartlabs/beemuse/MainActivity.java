@@ -38,6 +38,8 @@ public class MainActivity extends Activity {
     companion=new WebView(this);companion.setBackgroundColor(Color.TRANSPARENT);companion.getSettings().setJavaScriptEnabled(false);layout.addView(companion,new LinearLayout.LayoutParams(-1,160));animate("waving");
     host=input("Servidor HTTPS de Bee-Muse",false);host.setText(getPreferences(0).getString("host",""));code=input("Código de emparejamiento",true);button("Conectar mi dispositivo",v->pair());
     status=text("Elige archivos locales o conecta tu servidor para conversar con Muse.",14);
+    button("Asistente y control del teléfono",v->startActivity(new Intent(this,DeviceActivity.class)));
+    button("Navegador Bee-Muse",v->startActivity(new Intent(this,BrowserActivity.class)));
     button("Elegir carpeta del teléfono",v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);startActivityForResult(i,10);});
     extension=input("Filtrar extensión: html, png, pdf… (vacío: todos)",false);
     results=new LinearLayout(this);results.setOrientation(1);layout.addView(results);

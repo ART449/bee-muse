@@ -1,9 +1,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <queries><intent><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent><intent><action android:name="android.speech.RecognitionService"/></intent></queries>
   <application android:label="Bee-Muse" android:theme="@android:style/Theme.Material.NoActionBar" android:usesCleartextTraffic="false" android:allowBackup="false" android:supportsRtl="true">
     <activity android:name=".MainActivity" android:exported="true">
       <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
     </activity>
+    <activity android:name=".DeviceActivity" android:exported="true" android:excludeFromRecents="true">
+      <intent-filter><action android:name="android.intent.action.ASSIST"/><category android:name="android.intent.category.DEFAULT"/></intent-filter>
+    </activity>
+    <activity android:name=".BrowserActivity" android:exported="false"/>
+    <service android:name=".BeeAccessibilityService" android:label="Bee-Muse · control del teléfono" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" android:exported="true">
+      <intent-filter><action android:name="android.accessibilityservice.AccessibilityService"/></intent-filter>
+      <meta-data android:name="android.accessibilityservice" android:resource="@xml/bee_accessibility"/>
+    </service>
+    <service android:name=".BeeNotificationService" android:label="Bee-Muse · avisos hablados" android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" android:exported="true">
+      <intent-filter><action android:name="android.service.notification.NotificationListenerService"/></intent-filter>
+    </service>
+    <service android:name=".BeeVoiceService" android:label="Bee-Muse" android:permission="android.permission.BIND_VOICE_INTERACTION" android:exported="true">
+      <intent-filter><action android:name="android.service.voice.VoiceInteractionService"/></intent-filter>
+      <meta-data android:name="android.voice_interaction" android:resource="@xml/bee_voice"/>
+    </service>
+    <service android:name=".BeeVoiceSessionService" android:permission="android.permission.BIND_VOICE_INTERACTION" android:exported="true"/>
+    <service android:name=".BeeRecognitionService" android:permission="android.permission.BIND_SPEECH_RECOGNITION_SERVICE" android:exported="true"><intent-filter><action android:name="android.speech.RecognitionService"/></intent-filter></service>
   </application>
 </manifest>
