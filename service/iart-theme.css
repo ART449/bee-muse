@@ -1,0 +1,36 @@
+/* IART Labs / La Colmena. Shared identity; previews keep their original colors. */
+:root{color-scheme:dark;--bg:#0a0a0f;--paper:#18171f;--ink:#f7f3ff;--text:#f7f3ff;--muted:#b9b3c8;--line:#3c344b;--blue:#c4afff;--soft:#30223f;--honey:#ffd700;--orange:#ff9500;--purple:#a78bfa;--focus:#ffd700;--primary:#ffd700;--accent:#a78bfa;--card:#18171f}
+body{background:radial-gradient(ellipse at 95% 0%,#30203c55,transparent 42%),var(--bg);color:var(--ink)}
+body::before{content:'';position:fixed;inset:0 0 auto;height:3px;background:linear-gradient(90deg,var(--honey) 0 32%,var(--orange) 32% 65%,var(--purple) 65%);z-index:110;pointer-events:none}
+::selection{background:var(--purple);color:#0a0a0f}a{color:var(--blue)}a:hover{color:var(--honey)}
+h1,h2,h3,.title{color:var(--ink)}p,small,label,.location,.kind,.help,.sub,.filepath,.note,.resultline,.cardfoot{color:var(--muted)}
+.eyebrow,.brand-signature{color:var(--honey);font-size:12px;font-weight:750;letter-spacing:1.6px;text-transform:uppercase;line-height:1.6}.hive-name{color:var(--purple)}.brand-signature{margin-bottom:8px}
+button,input,select,textarea,.btn{background:#211d2b;color:var(--ink);border-color:var(--line);accent-color:var(--honey)}
+input[type=search],input[type=text],select,.bee-compose textarea{background:#121117;color:var(--ink);border-color:#514461}
+input::placeholder,textarea::placeholder{color:#aaa1ba;opacity:1}
+button:hover:not(:disabled),.btn:hover{background:#332640;border-color:#8d6bb5}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.btn.primary,.primary{background:var(--orange);color:#17100a;border-color:var(--orange);font-weight:700}
+.btn.primary:hover,.primary:hover{background:#ffb344!important;color:#17100a;border-color:#ffb344}
+.toolbar{background:var(--bg)}.summary,.card,.panel,.edition,.service,.savebar,.pill{background:var(--paper);border-color:var(--line)}
+.summary{box-shadow:0 10px 36px #0002}.metric{border-color:var(--line)}.metric strong{color:var(--honey)}.metric:nth-child(2) strong{color:#ffae4d}.metric:nth-child(3) strong{color:#c4afff}.metric:nth-child(4) strong{color:var(--ink)}
+.metric span,.pill{color:var(--muted)}.dot{background:var(--honey)}
+.tabs{border-color:var(--line)}.tab{color:var(--muted)}.tab:hover{background:#292132}.tab.active{background:#33243f;color:var(--honey);border-color:#765391;box-shadow:none}
+.card:hover,.card:focus-within{border-color:var(--purple);box-shadow:0 8px 28px #0003}.card.chosen{border-color:var(--honey);box-shadow:0 0 0 1px var(--honey)}
+.thumb{background:#24212d}.placeholder,.placeholder b{color:var(--muted)}.badge{background:#17131eea;border-color:#5b476f;color:#ffdf68}.select{background:#1d1725f5;border-color:#8c71a2}
+.textbtn{color:var(--blue)}.textbtn:hover{color:var(--honey)}.field-label{color:var(--muted)}
+.scan,.notice,.status,div.note{background:#2b2316;border-color:#70562a;color:#ffe29a}.notice p,div.note p{color:#dfd1b3}.status{color:#ffe29a}
+.edition{border-top-color:var(--honey)}.edition.full{border-top-color:var(--purple)}.service .status{background:#30233e;border:1px solid #604774;color:#e3d4ff;margin:0;padding:5px 9px;border-radius:20px;white-space:nowrap}
+.checks div{background:#282116;border-left-color:var(--orange);color:#e8ddc6}.checks strong{color:#ffdc7a}.service small,.service p{color:var(--muted)}
+details{border-color:var(--line)}summary{color:var(--blue)}summary:hover{color:var(--honey)}
+.preview{background:#231b30;border-color:#695080;color:var(--ink)}.top .preview{background:#050505;border:1px solid #574263}
+.grid article{background:var(--paper);border-color:var(--line)}.grid article img{background:#121117}
+.files li,.history-item{border-color:var(--line)}.files button{background:transparent;color:var(--blue)}.files button:hover{background:#32253e;color:var(--honey)}.empty{color:var(--muted)}.roots button{color:var(--honey)}
+.savebar{box-shadow:0 8px 24px #0005}#feedback{color:var(--ink)}
+.bee-panel{background:var(--paper);border-color:#72528c;box-shadow:0 16px 65px #0008}.bee-head{background:#291e34;border-bottom-color:#584069}.bee-brand{color:var(--honey)}.bee-head p{color:#d0c1df}.bee-chat{background:var(--paper)}
+.bee-msg.assistant{background:#282131;color:var(--ink)}.bee-msg.user{background:#3b2850;color:#f7efff}.bee-msg small{color:#c7bcd4!important}.bee-file{background:#18131f;color:#d3bbff;border-color:#614576}.bee-file:hover{background:#382347;color:var(--honey)}
+.bee-suggestions button{background:#292032;color:#ddccf1;border-color:#5c436f}.bee-suggestions button:hover{background:#3b284b}.bee-input-label,.bee-disclosure{color:#bfb3cc}.bee-compose textarea{border-color:#6b4f80}.bee-compose{border-color:var(--line)}
+.bee-launch{border-color:#ac7d2d!important;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #ffd70018,0 8px 26px #0007}.bee-launch:hover{box-shadow:0 0 0 4px #a78bfa40,0 8px 26px #0007}
+.dialog,.dialoghead,.dialogfoot,.maplegend{background:var(--paper);color:var(--ink);border-color:var(--line)}.modal{background:#060509c9}.dialoghead p{color:var(--muted)}#aiPanel{background:#251d31!important;color:var(--ink);border-color:#624b79!important}#aiResult{color:var(--ink)}
+.mapstage{background-color:#111016;background-image:radial-gradient(#59446b .8px,transparent .8px)}.mapnode,.mapnode.pending{background:#211b2a;color:var(--ink);border-color:#73528c}.mapnode .nodehead{border-color:#4b375c}.nodestate{color:var(--muted)}.maparrow{border-color:#b18ad1}.maparrow:after{color:#c4afff}.skip-link{background:var(--paper);color:var(--honey)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}

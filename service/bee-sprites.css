@@ -1,0 +1,8 @@
+/* Original sprite sheet supplied by Art; displayed by CSS without modifying it. */
+.bee-sprite{display:inline-block;flex:none;width:56px;height:64px;background-image:url('/mascotas/sheet.png');background-repeat:no-repeat;background-size:560.584% 330.323%;background-position:5.0713% 19.888%;vertical-align:middle}
+.bee-launch{display:grid;place-items:center;background:#050505!important;border-color:#302517!important;padding:0;width:68px;height:68px}
+.bee-brand .bee-sprite{width:36px;height:41px;border-radius:9px;background-color:#050505}
+.logo .bee-sprite{width:34px;height:39px}.logo{background:#050505}
+.bee-launch:hover .bee-sprite,.bee-launch:focus-visible .bee-sprite,.bee-working .bee-sprite,.sprite-demo .bee-sprite{animation:bee-original-frames 2.4s step-end infinite}
+@keyframes bee-original-frames{0%,100%{background-position:5.0713% 19.888%}12.5%{background-position:32.9635% 19.888%}25%{background-position:62.9952% 19.888%}37.5%{background-position:93.3439% 19.888%}50%{background-position:5.0713% 79.5518%}62.5%{background-position:32.9635% 79.5518%}75%{background-position:62.9952% 79.5518%}87.5%{background-position:93.3439% 79.5518%}}
+@media(prefers-reduced-motion:reduce){.bee-sprite{animation:none!important}}

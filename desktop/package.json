@@ -1,0 +1,17 @@
+{
+  "name": "bee-muse-desktop",
+  "productName": "Bee-Muse",
+  "version": "0.2.0",
+  "description": "Biblioteca visual y organizador de IART Labs · La Colmena",
+  "author": "IART Labs",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "package": "node package.cjs"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "@electron/packager": "20.3.0"
+  }
+}
