@@ -3,6 +3,13 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths:
+      - 'service/**'
+      - 'desktop/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'requirements*.txt'
+      - '.github/workflows/desktop.yml'
 permissions:
   contents: read
 jobs:

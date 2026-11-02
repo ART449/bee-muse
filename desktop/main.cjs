@@ -15,7 +15,7 @@ ipcMain.on('bee-storage',(event,action,key,value)=>{
   }catch{event.returnValue=null;}
 });
 app.setName('Bee-Muse');
-app.setPath('userData',path.join(app.getPath('appData'),'Bee-Muse'));
+app.setPath('userData',process.env.BEE_MUSE_DATA_DIR&&path.isAbsolute(process.env.BEE_MUSE_DATA_DIR)?process.env.BEE_MUSE_DATA_DIR:path.join(app.getPath('appData'),'Bee-Muse'));
 const locked=app.requestSingleInstanceLock();
 if(!locked)app.quit();
 app.on('second-instance',()=>{if(mainWindow){mainWindow.restore();mainWindow.show();mainWindow.focus();}});
@@ -85,7 +85,8 @@ if(locked)app.whenReady().then(async()=>{
   try{
     fs.mkdirSync(app.getPath('userData'),{recursive:true});
     origin=await startBackend(library());
-    mainWindow=new BrowserWindow({title:'Bee-Muse · IART Labs',width:1280,height:860,minWidth:680,minHeight:560,backgroundColor:'#0a0a0f',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-muse-desktop'}});
+    mainWindow=new BrowserWindow({title:'Bee-Muse · IArtLabs · 0.3.0',width:1280,height:860,minWidth:680,minHeight:560,backgroundColor:'#0a0a0f',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-muse-desktop'}});
+    mainWindow.on('page-title-updated',event=>event.preventDefault());
     safeWindow(mainWindow);menu();
     mainWindow.once('ready-to-show',()=>mainWindow.show());
     await mainWindow.loadURL(origin+'/muse');

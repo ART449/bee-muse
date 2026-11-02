@@ -2,7 +2,7 @@
 
 ## Verificado en Windows
 
-- 14 pruebas automatizadas aprobadas: conversación sin coincidencias, autorización de rutas locales, identidad Facebook con proveedor verificado mediante simulación del proveedor, archivos indexados, bloqueo de rutas arbitrarias y enlaces, nueve animaciones servidas y un cliente MCP externo.
+- 15 pruebas automatizadas aprobadas: conversación sin coincidencias, autorización de rutas locales, identidad Facebook con proveedor verificado mediante simulación del proveedor, flujo de acceso de escritorio de un solo uso, archivos indexados, bloqueo de rutas arbitrarias y enlaces, nueve animaciones servidas y un cliente MCP externo.
 - Prueba real con Muse: creó un archivo con el contenido exacto solicitado en una carpeta temporal y respondió con el resultado correcto de un cálculo.
 - Prueba real Muse + MCP: consultó `search_html` y devolvió el nombre exacto del archivo del catálogo sintético sin recorrer el disco.
 - INBEEBOX local respondió `status: ok` y `service: inbeebox-api` a la consulta de salud. No se enviaron mensajes.
