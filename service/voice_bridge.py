@@ -12,6 +12,28 @@ except ImportError:
     imageio_ffmpeg=None
 
 
+def decoder_environment(folder,windows=None):
+    windows=os.name=='nt' if windows is None else windows
+    env=os.environ.copy()
+    installed=shutil.which('ffmpeg')
+    if windows or not installed:
+        if not installed and imageio_ffmpeg is None:
+            raise ValueError('Falta el decodificador de audio. Instala requirements-voice.txt o usa el paquete de escritorio actualizado.')
+        decoder=Path(folder)/('ffmpeg.exe' if windows else 'ffmpeg')
+        shutil.copy2(installed or imageio_ffmpeg.get_ffmpeg_exe(),decoder)
+        decoder.chmod(decoder.stat().st_mode|0o111)
+        if windows:
+            # Muse probes the literal Unix name before spawning a Windows decoder.
+            alias=Path(folder)/'ffmpeg'
+            try:os.link(decoder,alias)
+            except OSError:shutil.copy2(decoder,alias)
+        original=next((v for k,v in env.items() if k.upper()=='PATH'),'')
+        for key in list(env):
+            if key.upper()=='PATH':env.pop(key)
+        env['PATH']=str(folder)+os.pathsep+original
+    return env
+
+
 def transcribe(body):
     if not isinstance(body,dict) or not isinstance(body.get('audio'),str):
         raise ValueError('No se recibió una grabación WAV.')
@@ -29,14 +51,7 @@ def transcribe(body):
     with tempfile.TemporaryDirectory(prefix='bee-muse-voice-') as folder:
         clip=Path(folder)/'voice.wav'
         clip.write_bytes(audio)
-        env=os.environ.copy()
-        if not shutil.which('ffmpeg'):
-            if imageio_ffmpeg is None:
-                raise ValueError('Falta el decodificador de audio. Instala requirements-voice.txt o usa el paquete de escritorio actualizado.')
-            decoder=Path(folder)/('ffmpeg.exe' if os.name=='nt' else 'ffmpeg')
-            shutil.copy2(imageio_ffmpeg.get_ffmpeg_exe(),decoder)
-            decoder.chmod(decoder.stat().st_mode|0o111)
-            env['PATH']=folder+os.pathsep+env.get('PATH','')
+        env=decoder_environment(folder)
         try:
             result=subprocess.run([str(exe),'voice','transcribe',str(clip)],cwd=folder,
                 stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
