@@ -26,7 +26,16 @@ Herramientas para IA, no una IA nueva ni solamente un buscador HTML. Muse es el 
 3. Probar conversación y selección de archivos en la GUI con la biblioteca existente. Conservar catálogo, historial, versiones y credenciales locales; no subirlos.
 4. Dictado Meta: el CLI instalado rechazó la decodificación de WAV incluso con FFmpeg disponible. No marcarlo funcionando. La lectura de respuestas utiliza voz del equipo, no TTS de Meta.
 5. Facebook: código y validaciones listos; falta configurar el proveedor Firebase y la aplicación/retorno OAuth en Meta, y completar un login real. No pedir secretos por chat ni inventar acceso configurado.
-6. Android: no existe APK nativo en esta entrega. ANDROID.md describe prueba del núcleo en Termux y las limitaciones del ejecutor. Hace falta cliente nativo y conexión autenticada al motor, con prueba real.
+6. Android: ya existe cliente nativo y compiló su APK de depuración. ANDROID.md describe la conexión HTTPS mediante código de un solo uso, consulta local de carpetas, chat y voces del teléfono. Falta la ronda completa de uso en dispositivo, según el orden solicitado por Art.
+
+## Ampliación del 2 de noviembre
+
+- Cliente Android compilado y descargado como artefacto Bee-Muse-Android-debug. No afirmar que sólo existe una especificación o que requiere Termux para instalar este cliente.
+- Gateway HTTPS independiente con emparejamiento; el backend principal conserva su acceso loopback.
+- Instalador de usuario y desinstalador Windows en scripts/. Conservan Roaming y la biblioteca. Se añadieron metadatos de versión al backend; no se ha firmado con certificado de publicación.
+- Versión de escritorio alineada a 0.4.0.
+- Meta for Developers requiere una nueva aplicación Facebook. Se abrió el portal y está solicitando login; se pidió a Art iniciar sesión directamente. No se crearon credenciales ni se completó el registro.
+- La auditoría pegada por Art corresponde al portable 0.2.0. Varios procesos Electron no demuestran por sí solos varias instancias: hay procesos auxiliares. Verificar ventanas y backends antes de cerrar procesos.
 
 ## Comandos desde la raíz
 

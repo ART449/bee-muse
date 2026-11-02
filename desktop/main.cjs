@@ -67,7 +67,7 @@ function menu(){
     {label:'Bee-Muse',submenu:[{label:'Mis archivos · elegir carpetas',click:()=>mainWindow.loadURL(origin+'/')},{label:'Mostrar carpeta de la aplicación',click:()=>shell.openPath(app.getPath('userData'))},{type:'separator'},{role:'quit',label:'Salir'}]},
     {label:'Ir a',submenu:[['Mis archivos','/'],['Biblioteca HTML','/html'],['Carpetas y movimientos','/carpetas'],['Muse','/muse'],['Apuntadora','/apuntadora'],['Conexiones','/conexiones'],['Hackatón','/hackaton']].map(([label,route])=>({label,click:()=>mainWindow.loadURL(origin+route)}))},
     {label:'Vista',submenu:[{role:'reload',label:'Recargar vista'},{role:'resetZoom',label:'Tamaño original'},{role:'zoomIn',label:'Acercar'},{role:'zoomOut',label:'Alejar'},{role:'togglefullscreen',label:'Pantalla completa'}]},
-    {label:'Ayuda',submenu:[{label:'Acerca de Bee-Muse',click:()=>dialog.showMessageBox(mainWindow,{message:'Bee-Muse · IART Labs · La Colmena',detail:'Aplicación de escritorio 0.2.0. Biblioteca local y Muse en nube. Compilación de Windows; distribución pública y firma pendientes.'})}]}
+    {label:'Ayuda',submenu:[{label:'Acerca de Bee-Muse',click:()=>dialog.showMessageBox(mainWindow,{message:'Bee-Muse · IART Labs · La Colmena',detail:'Aplicación de escritorio 0.4.0. Biblioteca local y Muse en nube. Compilación de Windows; distribución pública y firma pendientes.'})}]}
   ]));
 }
 function startBackend(folder){return new Promise((resolve,reject)=>{
@@ -85,7 +85,7 @@ if(locked)app.whenReady().then(async()=>{
   try{
     fs.mkdirSync(app.getPath('userData'),{recursive:true});
     origin=await startBackend(library());
-    mainWindow=new BrowserWindow({title:'Bee-Muse · IArtLabs · 0.3.0',width:1280,height:860,minWidth:680,minHeight:560,backgroundColor:'#0a0a0f',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-muse-desktop'}});
+    mainWindow=new BrowserWindow({title:'Bee-Muse · IArtLabs · 0.4.0',width:1280,height:860,minWidth:680,minHeight:560,backgroundColor:'#0a0a0f',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-muse-desktop'}});
     mainWindow.on('page-title-updated',event=>event.preventDefault());
     safeWindow(mainWindow);menu();
     mainWindow.once('ready-to-show',()=>mainWindow.show());
