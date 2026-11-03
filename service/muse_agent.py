@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import traceback
 import uuid
 import muse_bridge
 
@@ -172,6 +173,10 @@ def start(body):
             result=converse(message,body.get('history'),selected_workspace=selected or False)
             with STATE_LOCK: JOBS[key].update(state='completed',result=result)
         except Exception as exc:
+            if not isinstance(exc,ValueError):
+                # The user sees a generic message; keep the real cause in service.log for diagnosis.
+                print('muse job '+key+' failed: '+type(exc).__name__+': '+str(exc)[:500],file=sys.stderr,flush=True)
+                print(traceback.format_exc()[-4000:],file=sys.stderr,flush=True)
             with STATE_LOCK:
                 JOBS[key].update(state='failed',error=str(exc) if isinstance(exc,ValueError) else 'La sesión no pudo completarse. Revisa el proyecto antes de repetirla.')
     threading.Thread(target=run,daemon=True).start()
