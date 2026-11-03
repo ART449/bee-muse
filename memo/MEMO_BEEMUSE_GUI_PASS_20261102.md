@@ -31,6 +31,12 @@
 - **Defecto real encontrado (P1 para el video):** el **backend empaquetado 0.5.0** marca el job del agente como `failed` con el mensaje genérico aunque la acción se ejecute. El CLI y el mismo código desde source responden bien → es una diferencia del entorno congelado (PyInstaller), no de Muse ni del flujo. La excepción real no se registra en ningún log (`service.log` vacío).
 - **Efecto colateral observado:** tras el job #1 la ventana principal saltó a `/apuntadora` y se abrió "Navegador Bee-Muse"; no reproducido aún. Anotar para BeeCode.
 
+## Causa raíz (hallada el 03-nov, sin gastar cuota)
+
+`test_cleanup.py` reproduce el mecanismo con el propio `bee-muse-tools.exe` del paquete, sin Muse: es un binario PyInstaller **onefile**; su proceso hijo Python hereda el handle de `error.txt` que `converse()` entrega al CLI y sobrevive un instante al kill del bootloader. En Windows, la limpieza de `TemporaryDirectory` lanza `PermissionError [WinError 32]` sobre `error.txt`; como no es `ValueError`, `start().run()` marca el job como fallido con el mensaje genérico **aunque Muse ya completó la tarea**. Desde source el MCP es un único proceso `python` y la carrera no ocurre.
+
+**Fix:** PR #2 (`3cff9d8`): `TemporaryDirectory(..., ignore_cleanup_errors=True)` + volcado del traceback a `service.log`. 18/18 tests. Pendiente: validar con el artefacto Windows de CI de la rama en la GUI.
+
 ## Mitigaciones para grabar el video (sin tocar el paquete)
 
 1. **Grabar con el backend desde source** (`python run.py` o `service/server.py` con `BEE_LIBRARY_DIR`) sirviendo la UI, o la app de escritorio con `desktop/` + Electron — así la respuesta de Muse aparece en el chat. Declarar en el video que es la misma versión del código `19ed27d`.
