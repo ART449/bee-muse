@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import traceback
 import uuid
 import muse_bridge
 
@@ -71,7 +72,10 @@ def converse(message, history=None, selected_workspace=None):
     if not LOCK.acquire(blocking=False):
         raise ValueError('Muse está trabajando en otra solicitud. Espera su resultado.')
     try:
-        with tempfile.TemporaryDirectory(prefix='bee-muse-agent-') as tmp:
+        # ignore_cleanup_errors: the packaged MCP server (onefile bee-muse-tools.exe) inherits
+        # error.txt and may outlive Muse for a moment on Windows; a cleanup PermissionError must
+        # not turn a completed job into a failure (observed 2026-11-02 on the 0.5.0 package).
+        with tempfile.TemporaryDirectory(prefix='bee-muse-agent-',ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             work = target or root
             prompt = root/'prompt.txt'
@@ -172,6 +176,14 @@ def start(body):
             result=converse(message,body.get('history'),selected_workspace=selected or False)
             with STATE_LOCK: JOBS[key].update(state='completed',result=result)
         except Exception as exc:
+            if not isinstance(exc,ValueError):
+                # The user sees a generic message; keep the real cause in service.log for diagnosis.
+                # Logging must never keep the job stuck in 'running'.
+                try:
+                    print('muse job '+key+' failed: '+type(exc).__name__+': '+str(exc)[:500],file=sys.stderr,flush=True)
+                    print(traceback.format_exc()[-4000:],file=sys.stderr,flush=True)
+                except Exception:
+                    pass
             with STATE_LOCK:
                 JOBS[key].update(state='failed',error=str(exc) if isinstance(exc,ValueError) else 'La sesión no pudo completarse. Revisa el proyecto antes de repetirla.')
     threading.Thread(target=run,daemon=True).start()
