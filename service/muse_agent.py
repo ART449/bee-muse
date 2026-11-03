@@ -97,7 +97,7 @@ def converse(message, history=None, selected_workspace=None):
             with prompt.open('a',encoding='utf-8') as handle:
                 handle.write('\nEntrega message como respuesta natural. selectedIds lleva sólo identificadores exactos de archivos devueltos por las herramientas MCP que quieras mostrar o señalar; usa [] cuando no corresponda. No inventes identificadores.')
             command=[str(exe),'exec','--json','--preset','native-basic','--workspace',str(work),
-                     '--model',muse_bridge.MODEL,'--contributor-mode','off',
+                     '--model',muse_bridge.MODEL,'--contributor-mode',muse_bridge.contributor_mode(),
                      '--reasoning-effort','low','--max-model-steps','16',
                      '--approval-mode','on-request','--disable-reminders',
                      '--disable-request-user-input','--no-foreign-personal-context',
