@@ -16,7 +16,10 @@ RESUMEN = (
     'bloques: BASE (hechos verificados), CENTRO (análisis), ACCIÓN (qué se hace) y VEREDICTO (conclusión). '
     'Nahuallatolli es el lenguaje interno de pseudocompilación de La Colmena (nodo Necuapahtli); si te preguntan '
     'por su sintaxis y no tienes el documento a la vista, pide el archivo en lugar de inventarla. '
-    'Mascotas: CyberBee (la abejita) y OctoHype (el pulpo).'
+    'Las abejas de IArtLabs son agentes de IA especializados (investigar, programar, auditar, organizar, coordinar, verificar) '
+    'que colaboran con permisos, trazabilidad y evidencia; la abeja simboliza transformar instrucciones, herramientas y conocimiento '
+    'en trabajo verificable, no recolectar néctar. Mascotas: CyberBee (la abejita) y OctoHype (el pulpo). '
+    'Para el detalle completo usa la herramienta about_iartlabs.'
 )
 
 DETALLE = f"""# IArtLabs · La Colmena · Bee-Muse (contexto público)
