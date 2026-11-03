@@ -72,7 +72,10 @@ def converse(message, history=None, selected_workspace=None):
     if not LOCK.acquire(blocking=False):
         raise ValueError('Muse está trabajando en otra solicitud. Espera su resultado.')
     try:
-        with tempfile.TemporaryDirectory(prefix='bee-muse-agent-') as tmp:
+        # ignore_cleanup_errors: the packaged MCP server (onefile bee-muse-tools.exe) inherits
+        # error.txt and may outlive Muse for a moment on Windows; a cleanup PermissionError must
+        # not turn a completed job into a failure (observed 2026-11-02 on the 0.5.0 package).
+        with tempfile.TemporaryDirectory(prefix='bee-muse-agent-',ignore_cleanup_errors=True) as tmp:
             root = Path(tmp)
             work = target or root
             prompt = root/'prompt.txt'
