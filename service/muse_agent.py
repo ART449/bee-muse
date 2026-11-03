@@ -130,6 +130,10 @@ def converse(message, history=None, selected_workspace=None):
                             name=payload.get('name') or payload.get('tool_name')
                             if isinstance(name,str) and len(name)<100 and name not in tools: tools.append(name)
                     if result.returncode or not completed or not isinstance(final,str):
+                        error.seek(0)
+                        if b'MCP configuration failed to load' in error.read(20000):
+                            # Observed 2026-11-03: the Muse CLI refuses its MCP config when the workspace is on a removable exFAT drive.
+                            raise ValueError('Muse no pudo cargar sus herramientas en esa carpeta de trabajo (suele ocurrir en unidades USB o exFAT). Elige una carpeta en el disco principal, por ejemplo dentro de C:\\Users, y repite la solicitud.')
                         raise ValueError('Muse no completó esta solicitud. Puede haber cambios parciales: revisa la carpeta antes de repetirla. Si una acción requiere aprobación interactiva, complétala en Muse Code.')
             except subprocess.TimeoutExpired:
                 raise ValueError('Muse alcanzó el tiempo límite. Puede haber cambios parciales: revisa el proyecto antes de repetir la tarea.') from None
