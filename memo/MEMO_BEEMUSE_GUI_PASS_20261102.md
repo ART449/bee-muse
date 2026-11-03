@@ -35,7 +35,9 @@
 
 `test_cleanup.py` reproduce el mecanismo con el propio `bee-muse-tools.exe` del paquete, sin Muse: es un binario PyInstaller **onefile**; su proceso hijo Python hereda el handle de `error.txt` que `converse()` entrega al CLI y sobrevive un instante al kill del bootloader. En Windows, la limpieza de `TemporaryDirectory` lanza `PermissionError [WinError 32]` sobre `error.txt`; como no es `ValueError`, `start().run()` marca el job como fallido con el mensaje genérico **aunque Muse ya completó la tarea**. Desde source el MCP es un único proceso `python` y la carrera no ocurre.
 
-**Fix:** PR #2 (`3cff9d8`): `TemporaryDirectory(..., ignore_cleanup_errors=True)` + volcado del traceback a `service.log`. 18/18 tests. Pendiente: validar con el artefacto Windows de CI de la rama en la GUI.
+**Fix:** PR #2 (`3cff9d8`): `TemporaryDirectory(..., ignore_cleanup_errors=True)` + volcado del traceback a `service.log`. 18/18 tests.
+
+**Validación (03-nov):** CI de la rama verde en Windows/Linux/macOS (run `41587558478`). El `bee-muse-service.exe` compilado (SHA `5b673a77…c326`, zip `d9f48d54…8ff5`) ejecutado solo, por su API HTTP, con la misma biblioteca y carpeta: **job `completed` en 10 s — "El contenido exacto de demo-note.txt es: Bee-Muse demo. Y 17 por 23 es 391."** `service.log` vacío, 0 `bee-muse-tools.exe` huérfanos. Evidencia: `I:\Bee-Muse\2026-11-02\memo-cierre\fix-validation-20261103\`. La GUI completa no se relanzó por RAM baja en Victus (1.1 GB libres); la vista `/muse` solo renderiza `job.result.message`, ya visto funcionando.
 
 ## Mitigaciones para grabar el video (sin tocar el paquete)
 
