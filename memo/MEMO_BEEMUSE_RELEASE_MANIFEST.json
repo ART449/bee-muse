@@ -1,0 +1,158 @@
+{
+  "manifest": "MEMO_BEEMUSE_RELEASE_MANIFEST",
+  "generatedBy": "MEMO",
+  "generatedAt": "2026-11-02T23:30:00-06:00",
+  "handoffId": "HANDOFF-MEMO-BEEMUSE-20261102-001",
+  "deadline": "2026-11-04T20:00:00-06:00",
+  "submissionStatus": "DRAFT_NOT_SUBMITTED",
+  "repositories": {
+    "main": {
+      "url": "https://github.com/ART449/bee-muse",
+      "visibility": "public",
+      "verifiedPublicAt": "2026-11-02T23:15:00-06:00",
+      "head": "19ed27d",
+      "headMessage": "docs: add evidence-based Meta hackathon submission packet",
+      "commitCount": 20,
+      "createdAt": "2026-11-02T04:05:06Z",
+      "pushedAt": "2026-11-03T03:08:19Z",
+      "secretScan": {
+        "scope": "all 20 commits, all historical paths",
+        "verdict": "CLEAN",
+        "findings": 0,
+        "note": "only match is a detector prefix list in service/chingaquedito.py:45; not a secret"
+      },
+      "license": "MISSING",
+      "docDrift": "HANDOFF.md, META.md, PLAN-HACKATON.md, HACKATHON-SUBMISSION.md still say 'private'"
+    },
+    "android": {
+      "url": "https://github.com/ART449/bee-muse-android",
+      "visibility": "private",
+      "head": "8082e24",
+      "commitCount": 1,
+      "nature": "specification only; NOT the native client (that lives in bee-muse/android/)"
+    }
+  },
+  "release": {
+    "version": "0.5.0",
+    "location": "I:\\Bee-Muse\\2026-11-02\\release-0.5.0",
+    "desktopSource": "5807c659dfef2681d5f3bb407874635ce2f93505",
+    "androidSource": "df1944bd246381ada8958ac534eaaa7cabc8f087",
+    "artifacts": [
+      {
+        "file": "Android/app-debug.apk",
+        "sha256": "457814a8de1a06dd625d3dae54993e29da18e8edb9469a741dced77fbd47a83b",
+        "verifiedOnDisk": true,
+        "verifiedAt": "2026-11-02T23:22:00-06:00",
+        "ciRun": "41512152076"
+      },
+      {
+        "file": "Desktop/Bee-Muse-Windows-X64/Bee-Muse-0.5.0-Windows-x64.zip",
+        "installerIncluded": true,
+        "extractedTo": "Windows/Bee-Muse-win32-x64",
+        "sha256": "REPORTED_VERIFIED_BY_REPO_NOT_RECOMPUTED",
+        "ciRun": "41514484719",
+        "extractedExe": {
+          "file": "Windows/Bee-Muse-win32-x64/Bee-Muse.exe",
+          "sizeBytes": 249798656,
+          "sha256": "3335e3c3ab134e385f4392eef8b55d323dfc889fe1596eb889ef9fd039c591d1",
+          "productVersion": "0.5.0",
+          "authenticode": "NotSigned",
+          "bundleKind": "ASAR",
+          "smokeTest": {
+            "kit": "BeeMuse_Kit_Validacion_v2.zip sha256 704f04cd9d01a4f92c4f9c7130a1f7dd2585e586bc277128c2f768e69b71026f",
+            "runAt": "2026-11-02T23:36:51-06:00",
+            "verdict": "SMOKE_WINDOW_DETECTED",
+            "windowTitle": "Bee-Muse · IArtLabs · 0.5.0",
+            "processes": 4,
+            "visibleWindows": 1,
+            "evidence": "memo-cierre/kit-v2-run-20261102-233651/resultado.json"
+          }
+        }
+      },
+      {
+        "file": "Desktop/Bee-Muse-Linux-X64/Bee-Muse-0.5.0-Linux-x64.tar.gz",
+        "executableModesPreserved": true,
+        "symlinks": 0,
+        "sha256": "REPORTED_VERIFIED_BY_REPO_NOT_RECOMPUTED",
+        "ciRun": "41514484719"
+      },
+      {
+        "file": "Desktop/Bee-Muse-macOS-ARM64/Bee-Muse-0.5.0-macOS-arm64.tar.gz",
+        "executableModesPreserved": true,
+        "symlinks": 14,
+        "sha256": "REPORTED_VERIFIED_BY_REPO_NOT_RECOMPUTED",
+        "ciRun": "41514484719"
+      }
+    ],
+    "receipts": [
+      "release-validation.json",
+      "compiled-voice-proof.json",
+      "LEEME.txt",
+      "../verified-moves.json"
+    ]
+  },
+  "metaIntegration": {
+    "museModel": "muse-wonder-1.0",
+    "museBridge": "service/muse_bridge.py",
+    "realConversationTest": "REPORTED_OK (file create + arithmetic)",
+    "mcpSearchHtmlTest": "REPORTED_OK",
+    "voiceSTT": {
+      "status": "VERIFIED_SYNTHETIC_WAV",
+      "proof": "compiled-voice-proof.json",
+      "transcript": "Hola, esta es una prueba de voz de Bemius.",
+      "realMicrophone": "NOT_VERIFIED"
+    },
+    "ttsOutput": "system voice, NOT Meta",
+    "facebookApp": {
+      "appId": "1747909204005226",
+      "mode": "development",
+      "portfolio": "IArtLabs 1042930465579250",
+      "useCase": "FB_LOGIN",
+      "oauthRedirect": "NOT_CONFIGURED",
+      "firebaseProvider": "CONFIGURATION_NOT_FOUND",
+      "realLogin": "NOT_VERIFIED"
+    }
+  },
+  "ci": {
+    "latestFailure": {
+      "run": "41509772891",
+      "commit": "ac8c274",
+      "resolvedBy": "c1f2ece",
+      "resolvedRun": "41510052508"
+    },
+    "allRecentRunsGreen": true
+  },
+  "deliverables": {
+    "video": {
+      "status": "NOT_RECORDED",
+      "expectedPath": "I:\\Bee-Muse\\2026-11-02\\hackathon-video\\capture\\",
+      "sha256": null,
+      "url": null
+    },
+    "form": {
+      "status": "NOT_SUBMITTED",
+      "url": "https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit",
+      "draftsIn": "HACKATHON-SUBMISSION.md",
+      "receipt": null
+    },
+    "repoPublic": true,
+    "licensePresent": false
+  },
+  "notVerified": [
+    "physical Pixel round (gestures, assistant, notifications)",
+    "real microphone capture",
+    "Facebook login end-to-end",
+    "Muse -> INBEEBOX -> device full loop",
+    "package transfer to INSPIBEE",
+    "Linux/macOS interactive run on real machines",
+    "SAM/OCR visual understanding (not implemented)"
+  ],
+  "memoDocs": [
+    "memo/MEMO_BEEMUSE_ESTADO_FINAL.md",
+    "memo/MEMO_BEEMUSE_BLOQUEOS.md",
+    "memo/MEMO_BEEMUSE_EVIDENCIAS.md",
+    "memo/MEMO_BEEMUSE_DEMO_SCRIPT.md",
+    "memo/MEMO_BEEMUSE_RELEASE_MANIFEST.json",
+    "memo/MEMO_BEEMUSE_HANDOFF_CIERRE.md"
+  ]
+}

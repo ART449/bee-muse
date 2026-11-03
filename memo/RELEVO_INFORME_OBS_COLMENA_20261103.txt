@@ -1,0 +1,30 @@
+Primer informe — 3 de noviembre de 2026. La prioridad que recomiendo para La Colmena es distinguir identidad del agente, instancia en ejecución y evidencia de sus acciones. Esa separación permitiría investigar al agente "nuevo" y las dos instancias de OctoHype que reportaste. Esos antecedentes siguen siendo observaciones tuyas; aquí no he inspeccionado el sistema.
+
+BASE · Investigación verificada
+Revisé novedades del 28 de octubre al 3 de noviembre, con antecedentes relevantes de 2026 y 2025. Encontré dos trabajos dentro de esa ventana:
+- Soei, preprint del 29 de octubre de 2026: analiza 45 sesiones y 102,233 registros. Estima que el 23.4% de episodios de edición termina sin comprobación independiente posterior; IC 17.1–35.7%. Aplicación: separar "el agente declaró terminado" de "existe una comprobación del resultado". Preprint sobre corpus limitado; sus porcentajes no describen La Colmena.
+- VerifyMAS, revisión v3 del 30 de octubre de 2026: verifica hipótesis de fallo sobre trayectorias completas antes de localizar al agente responsable. Evalúa en Aegis-Bench y Who&When; enlaza código y datos. Aplicación: revisar primero hipótesis como "hubo una escritura con contexto vencido" y después atribuir responsabilidad. No reproduje sus resultados.
+Antecedentes:
+- TraceElephant, ACL, julio 2026: trazas completas mejoran la precisión de atribución hasta 76.5% frente a observación parcial (según autores). Sugiere registrar entradas y contexto, además de respuestas.
+- AcMAS, ICML, julio 2026: detecta comportamiento malicioso mediante activaciones internas; F1 0.93 vs 0.38 de referencia. Requiere acceso a activaciones; no se traslada a modelos por API; no identifica agentes ausentes del catálogo.
+- Who&When, ICML 2025: mejor método 53.5% al identificar agente responsable y 14.2% al localizar el paso del fallo. Una atribución automática necesita evidencia y revisión.
+Son resultados publicados por sus autores; esta revisión no constituye reproducción experimental.
+
+CENTRO · Qué cambia para La Colmena
+Mantener tres comprobaciones separadas:
+- Aparece un nombre desconocido -> contrastar identidad admitida con versión concreta del catálogo -> "fuera de catálogo" hasta resolver procedencia.
+- Aparecen dos OctoHype -> comparar identificadores de instancia, sesión, proceso y tarea -> pueden ser dos ejecuciones legítimas.
+- Una instancia actúa incorrectamente -> examinar permisos, contexto recibido, herramientas y efectos -> un agente registrado también puede fallar.
+Para CCP, asociar a cada evento: agent_id, instance_id, run_id, task_id, event_id, parent_event_id, catalog_version, context_version, action, result y evidence_ref. La identidad debe asignarla o validarla el sistema que admite al agente. Un nombre que el propio modelo escribe no acredita su identidad.
+Para tareas con efectos compartidos: reserva temporal de ejecución, número de generación que invalide trabajadores antiguos y clave que impida repetir el mismo efecto. Pendientes de comprobar.
+
+ACCIÓN · GO_EXPERIMENTO
+Identificador: GO-EXP-COLMENA-OBS-001. Estado: prueba propuesta; no ejecutada.
+Hipótesis: catálogo versionado + identificadores por instancia + control de escrituras detectan identidades desconocidas y evitan efectos duplicados sin confundir concurrencia legítima con agentes nuevos.
+Entorno: simulador local, sin modelos, red, credenciales ni archivos de producción. Catálogo sintético con OctoHype y Auditor; dos instancias autorizadas de OctoHype.
+Protocolo: 1) carpeta nueva, fijar catálogo/reglas/criterios; 2) 100 secuencias, semillas 0–99, por escenario; 3) reproducir cada secuencia en control sin protecciones y en tratamiento protegido, mismas tareas/entradas/orden; 4) tiempo virtual: reserva de 5 unidades; al vencer, generación nueva; rechazar escrituras de generaciones anteriores; 5) eventos JSONL, resultados CSV, manifiesto SHA-256; repetir y comparar normalizado.
+Escenarios y criterios: dos instancias autorizadas, tareas diferentes -> 0 falsas alertas; identidad ausente del catálogo -> 100% detección antes de aceptar; dos instancias compiten por una tarea -> un solo efecto confirmado; trabajador antiguo vuelve tras vencer reserva -> 0 escrituras aceptadas; mensaje reenviado dos veces -> 0 efectos adicionales; evento sin padre o contexto -> 100% marcado evidencia incompleta.
+Registrar primer evento infractor, número de alertas y efectos del control. Checkpoints: configuración; trazas; métricas; repetición verificable. Reversión: archivar o eliminar solo la carpeta del experimento.
+
+VEREDICTO · Prioridad inmediata
+Reconciliar catálogo, instancias y eventos por tarea; después, reservas y escrituras concurrentes. Una prueba sintética aprobada demostraría las reglas en el simulador; afirmar fiabilidad de La Colmena requiere contrastar con trazas reales (caídas, mensajes perdidos, reinicios).
