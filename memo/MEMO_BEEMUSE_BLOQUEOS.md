@@ -13,6 +13,8 @@ Formato por tarea: `TASK_ID | NODO | RESPONSABLE | REPO@COMMIT | ESTADO | PRUEBA
 | BLK-02 | GitHub | BeeCode (PR) + **ArT** (decide licencia) | bee-muse@19ed27d | **FALLÓ — falta LICENSE** | `ls LICENSE` en el árbol | No existe LICENSE en HEAD | — | ArT elige (MIT recomendada); añadir `LICENSE` por PR a main; revisar que las 9 animaciones CyberBee/OctoHype tengan licencia compatible |
 | BLK-03 | Navegador ArT | **ArT** | — | **BLOQUEADO — humano** | ¿Comprobante de envío (pantalla/email)? | `HACKATHON-SUBMISSION.md`: "DRAFT — NOT SUBMITTED" | — | Copiar drafts en inglés del packet al formulario cerebralvalley; completar equipo/encuesta con respuestas reales; leer consentimiento promocional; Submit; guardar captura + email |
 
+| BLK-04 | Victus | BeeCode (PR) | bee-muse@19ed27d · paquete 0.5.0 (`5807c65`) | **FALLÓ — solo en el backend empaquetado** | job de Muse en la GUI 0.5.0 | `state: failed` genérico en 8 s aunque la acción se ejecutó (archivo creado); CLI directo ✅ 391; `converse()` desde source ✅ 391. Ver `MEMO_BEEMUSE_GUI_PASS_20261102.md` | exe `3335e3c3…91d1` | PR `fix/muse-job-error-logging` (registrar traceback en `service.log`) → build CI → localizar causa en entorno PyInstaller. Para el video: backend desde source o mostrar el archivo creado |
+
 **Alternativa reversible si BLK-01 se atora:** grabar solo la pantalla de Windows (OBS / Xbox Game Bar `Win+G`) con el backend compilado 0.5.0 y la biblioteca sintética de `hackathon-evidence\synthetic-library`; narración de voz después. No se necesita Pixel ni Firebase para un video honesto.
 
 ---
