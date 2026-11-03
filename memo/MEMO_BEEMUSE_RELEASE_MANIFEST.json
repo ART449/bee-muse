@@ -50,7 +50,24 @@
         "installerIncluded": true,
         "extractedTo": "Windows/Bee-Muse-win32-x64",
         "sha256": "REPORTED_VERIFIED_BY_REPO_NOT_RECOMPUTED",
-        "ciRun": "41514484719"
+        "ciRun": "41514484719",
+        "extractedExe": {
+          "file": "Windows/Bee-Muse-win32-x64/Bee-Muse.exe",
+          "sizeBytes": 249798656,
+          "sha256": "3335e3c3ab134e385f4392eef8b55d323dfc889fe1596eb889ef9fd039c591d1",
+          "productVersion": "0.5.0",
+          "authenticode": "NotSigned",
+          "bundleKind": "ASAR",
+          "smokeTest": {
+            "kit": "BeeMuse_Kit_Validacion_v2.zip sha256 704f04cd9d01a4f92c4f9c7130a1f7dd2585e586bc277128c2f768e69b71026f",
+            "runAt": "2026-11-02T23:36:51-06:00",
+            "verdict": "SMOKE_WINDOW_DETECTED",
+            "windowTitle": "Bee-Muse · IArtLabs · 0.5.0",
+            "processes": 4,
+            "visibleWindows": 1,
+            "evidence": "memo-cierre/kit-v2-run-20261102-233651/resultado.json"
+          }
+        }
       },
       {
         "file": "Desktop/Bee-Muse-Linux-X64/Bee-Muse-0.5.0-Linux-x64.tar.gz",
