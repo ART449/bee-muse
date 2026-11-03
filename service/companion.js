@@ -5,10 +5,12 @@
   const image=document.createElement('img');image.alt='CyberBee y OctoHype';image.width=112;image.height=112;
   const label=document.createElement('span');label.setAttribute('role','status');
   const button=document.createElement('button');button.type='button';button.textContent='Ocultar animación';button.setAttribute('aria-label','Ocultar animación');
-  box.append(image,label,button);document.body.append(box);
+  // Si la página ofrece un muelle (#beeDock, p. ej. junto al chat de Muse), la mascota vive ahí en vez de la esquina.
+  const dock=document.getElementById('beeDock');
+  box.append(image,label,button);if(dock){box.classList.add('docked');dock.append(box);}else document.body.append(box);
   let current='idle',reset=null;
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
-  function set(state){if(!names[state])return;clearTimeout(reset);current=state;image.src='/mascotas/cyberbee-octohype/'+(reduced.matches?'still.png':state+'.gif');label.textContent=names[state];if(['jumping','failed','waving','running-left','running-right'].includes(state))reset=setTimeout(()=>set('idle'),state==='failed'?8000:3200);}
+  function set(state){if(!names[state])return;clearTimeout(reset);current=state;image.src='/mascotas/cyberbee-octohype/'+(reduced.matches?'still.png':state+'.gif');label.textContent=names[state];window.dispatchEvent(new CustomEvent('bee-companion-state',{detail:state}));if(['jumping','failed','waving','running-left','running-right'].includes(state))reset=setTimeout(()=>set('idle'),state==='failed'?8000:3200);}
   window.BeeCompanion={set};window.addEventListener('bee-state',event=>set(event.detail));reduced.addEventListener('change',()=>set(current));
   button.onclick=()=>{box.hidden=true;try{sessionStorage.setItem('bee-companion-hidden','1');}catch{}};
   try{box.hidden=sessionStorage.getItem('bee-companion-hidden')==='1';}catch{}
