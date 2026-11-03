@@ -175,8 +175,12 @@ def start(body):
         except Exception as exc:
             if not isinstance(exc,ValueError):
                 # The user sees a generic message; keep the real cause in service.log for diagnosis.
-                print('muse job '+key+' failed: '+type(exc).__name__+': '+str(exc)[:500],file=sys.stderr,flush=True)
-                print(traceback.format_exc()[-4000:],file=sys.stderr,flush=True)
+                # Logging must never keep the job stuck in 'running'.
+                try:
+                    print('muse job '+key+' failed: '+type(exc).__name__+': '+str(exc)[:500],file=sys.stderr,flush=True)
+                    print(traceback.format_exc()[-4000:],file=sys.stderr,flush=True)
+                except Exception:
+                    pass
             with STATE_LOCK:
                 JOBS[key].update(state='failed',error=str(exc) if isinstance(exc,ValueError) else 'La sesión no pudo completarse. Revisa el proyecto antes de repetirla.')
     threading.Thread(target=run,daemon=True).start()
