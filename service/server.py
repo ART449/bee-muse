@@ -98,8 +98,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('Referrer-Policy', 'no-referrer')
         if cookie:self.send_header('Set-Cookie',cookie)
         if preview:
-            self.send_header('Access-Control-Allow-Origin', '*')
             origin = f'http://127.0.0.1:{self.server.server_port}'
+            # Previews are embedded same-origin (iframe/img/audio); never expose them to other sites via CORS.
+            self.send_header('Access-Control-Allow-Origin', origin)
             self.send_header('Content-Security-Policy', f"sandbox; default-src 'none'; script-src 'none'; style-src 'unsafe-inline' {origin}; img-src data: {origin}; font-src data: {origin}; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri {origin}; form-action 'none'")
         else:
             csp="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'"
