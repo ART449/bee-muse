@@ -139,14 +139,22 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send((BASE/route[1:]).read_bytes(),'text/javascript; charset=utf-8')
             if route == '/api/library/index-status':
                 return self.send(html_indexer.status())
+            if route == '/api/files/kinds':
+                return self.send(file_catalog.kinds_catalog())
             if route == '/api/files':
                 return self.send(file_catalog.inventory(BASE,q.get('q',[''])[0],q.get('kind',['all'])[0]))
             if route == '/api/files/record':
                 return self.send(file_catalog.record(BASE,q.get('id',[''])[0]))
             if route == '/api/files/preview':
                 row=file_catalog.record(BASE,q.get('id',[''])[0]);p=Path(row['path'])
-                if p.suffix.lower() not in {'.png','.jpg','.jpeg','.gif','.webp','.avif'} or offline(p) or p.stat().st_size>8*1024*1024:
+                # Vista previa aislada (CSP sandbox, sin scripts) para imágenes, HTML, audio y video acotados.
+                previewable={'.png','.jpg','.jpeg','.gif','.webp','.avif','.svg','.html','.htm','.mp3','.wav','.m4a','.ogg','.mp4','.webm'}
+                limit=64*1024*1024 if p.suffix.lower() in {'.mp4','.webm','.mp3','.wav','.m4a','.ogg'} else 8*1024*1024
+                if p.suffix.lower() not in previewable or offline(p) or p.stat().st_size>limit:
                     return self.send({'error':'Vista previa no disponible'},status=404)
+                if p.suffix.lower() in {'.html','.htm'}:
+                    text=re.sub(r'<meta\b[^>]*http-equiv\s*=\s*[\"\x27]?refresh\b[^>]*>','',re.sub(r'<base\b[^>]*>','',decode(p.read_bytes()),flags=re.I),flags=re.I)
+                    return self.send(text,'text/html; charset=utf-8',preview=True)
                 return self.send(p.read_bytes(),mimetypes.guess_type(p.name)[0] or 'application/octet-stream',preview=True)
             if route == '/jules':
                 return self.send((BASE/'jules.html').read_bytes(),'text/html; charset=utf-8')

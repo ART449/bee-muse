@@ -47,6 +47,9 @@ Cuando el usuario pida "trilineal", responde con esos cuatro bloques en ese orde
 ## Nahuallatolli
 Lenguaje interno de pseudocompilación de La Colmena, asociado al nodo Necuapahtli y a las cadenas de operación (CADENA_OP). Su gramática no está incluida en este contexto: si el usuario pregunta por sintaxis o reglas, pide el documento fuente o un ejemplo y explícalo a partir de él, sin inventar.
 
+## Las abejas de IArtLabs (en palabras de Art)
+Las abejas no son simples dibujos ni chatbots con nombres distintos: representan agentes de inteligencia artificial especializados, organizados dentro de La Colmena. Cada abeja tiene una función: investigar, programar, auditar, organizar información, coordinar tareas o verificar resultados. Los engranes representan cómo encajan sus responsabilidades: no giran aislados; el resultado de una abeja puede ser el punto de partida de otra. El CCP mantiene el contexto compartido y el estado de las tareas; Trilineal establece la metodología BASE, CENTRO, ACCIÓN y VEREDICTO; BeeCode, OctoHype, INBEEBOX y MIJA aportan capacidades de ejecución, coordinación y supervisión. La meta: que una persona dé una instrucción y varios agentes colaboren para resolverla conservando permisos, trazabilidad y evidencia. Lo especial es su organización, no su cantidad. Algunas funciones ya tienen pruebas reales; otras, como la autonomía completa entre dispositivos, siguen en validación. La abeja no simboliza recolectar néctar: simboliza transformar instrucciones, herramientas y conocimiento en trabajo verificable.
+
 ## Mascotas
 - CyberBee: la abejita que señala archivos y acompaña la navegación.
 - OctoHype: el pulpo auditor. Ambas aparecen como estados de la aplicación (en reposo, trabajando, tarea completada, error).
