@@ -1,0 +1,211 @@
+{
+  "timestamp": "2026-11-04T16:34:59-0600",
+  "commit_audited": "1a580be561da0a9971de076385dc3a4cc5c2276a",
+  "branch_audited": "feat/ports-multiplataforma (includes feat/ux-demo-hackathon @ 206d406)",
+  "synced_files_count": 47,
+  "unit_tests": {
+    "passed": true,
+    "modules": {
+      "tests.test_service": {
+        "passed": true,
+        "returncode": 0,
+        "output": "test_general_conversation_is_not_gated_by_catalog (tests.test_service.ConversationTests.test_general_conversation_is_not_gated_by_catalog) ... ok\ntest_no_matches_still_reaches_muse (tests.test_service.ConversationTests.test_no_matches_still_reaches_muse) ... ok\ntest_workspace_cannot_be_missing_or_relative (tests.test_service.ConversationTests.test_workspace_cannot_be_missing_or_relative) ... ok\ntest_async_conversation_returns_real_completion_state (tests.test_service.HttpTests.test_async_conversation_returns_real_completion_state) ... ok\ntest_new_ui_and_nine_animations_are_served (tests.test_service.HttpTests.test_new_ui_and_nine_animations_are_served) ... ok\ntest_voice_rejects_invalid_audio_without_invoking_muse (tests.test_service.HttpTests.test_voice_rejects_invalid_audio_without_invoking_muse) ... ok\ntest_workspace_routes_keep_local_token_and_origin_gate (tests.test_service.HttpTests.test_workspace_routes_keep_local_token_and_origin_gate) ... ok\ntest_desktop_login_is_bound_to_nonce_provider_and_consumed (tests.test_service.IdentityTests.test_desktop_login_is_bound_to_nonce_provider_and_consumed) ... ok\ntest_facebook_lookup_is_required_and_email_is_optional (tests.test_service.IdentityTests.test_facebook_lookup_is_required_and_email_is_optional) ... ok\ntest_unknown_provider_rejected_before_network (tests.test_service.IdentityTests.test_unknown_provider_rejected_before_network) ... ok\ntest_all_file_types_use_existing_database (tests.test_service.IndexedToolsTests.test_all_file_types_use_existing_database) ... ok\ntest_general_search_does_not_drop_matches_after_first_50000 (tests.test_service.IndexedToolsTests.test_general_search_does_not_drop_matches_after_first_50000) ... ok\ntest_limits_and_types (tests.test_service.IndexedToolsTests.test_limits_and_types) ... ok\ntest_search_title_and_read_only_selected_file (tests.test_service.IndexedToolsTests.test_search_title_and_read_only_selected_file) ... ok\ntest_symlink_does_not_allow_index_escape (tests.test_service.IndexedToolsTests.test_symlink_does_not_allow_index_escape) ... skipped 'Symlink creation unavailable'\n\n----------------------------------------------------------------------\nRan 15 tests in 1.264s\n\nOK (skipped=1)"
+      },
+      "tests.test_voice_decoder": {
+        "passed": true,
+        "returncode": 0,
+        "output": "test_system_decoder_on_unix_does_not_change_environment (tests.test_voice_decoder.DecoderEnvironmentTests.test_system_decoder_on_unix_does_not_change_environment) ... ok\ntest_windows_cli_can_probe_both_names_without_losing_path (tests.test_voice_decoder.DecoderEnvironmentTests.test_windows_cli_can_probe_both_names_without_losing_path) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.008s\n\nOK"
+      }
+    }
+  },
+  "guia_harness": {
+    "passed": true,
+    "dom_excerpt": "<pre id=\"resultado\">permiso_visible=true\ntexto_meta=true\nfirma=true\ncursor_nace=true\ncursor_en_mouse=translate(102.906px, 174.675px)\npaso1=Paso 1 de 3\nblanco1=true\nreduced_transition=0.7s\nesperando_foco=Siguiente\ncursor_sobre_blanco=translate(102.906px, 174.675px)\npaso2=Paso 2 de 3\nblanco2_respaldo_dictar=true\ndetenida_por_mouse=true\naviso=Guía detenida. Puedes repetirla desde el menú Ayuda.\nblanco_limpio=true\nreinicio_paso=Paso 1 de 3\ndetenida_por_esc=true\nsaltar_visible_tras_iniciar=true\ndetenida_por_saltar=true\nsin_blancos_cierre_limpio=Listo|Esta pantalla aún no tiene los\nmarca_guardada=1\nFIN=true</pre>"
+  },
+  "health": {
+    "app": "biblioteca-html-local",
+    "total": 3
+  },
+  "csrf_check": {
+    "status": 403,
+    "response": {
+      "error": "Solicitud local no autorizada"
+    }
+  },
+  "ai_status": {
+    "status": 200,
+    "data": {
+      "available": true,
+      "installed": true,
+      "verifiedThisProcess": false,
+      "lastSuccess": null,
+      "models": [
+        {
+          "name": "muse-wonder-1.0",
+          "bytes": null,
+          "quantization": null
+        }
+      ],
+      "default": "muse-wonder-1.0",
+      "local": false,
+      "provider": "Muse Code · Meta",
+      "hostPlatform": "Windows",
+      "account": null,
+      "note": "Detectar el ejecutable no verifica suscripción ni saldo. Se comprueba al pedir una respuesta."
+    }
+  },
+  "catalog_total": 3,
+  "chingaquedito_resumen": {},
+  "superexports_preview": {
+    "status": 200,
+    "resumen": {
+      "porColor": {
+        "verde": {
+          "grupos": 0,
+          "bytes": 0,
+          "archivos": 0
+        },
+        "amarillo": {
+          "grupos": 0,
+          "bytes": 0,
+          "archivos": 0
+        },
+        "rojo": {
+          "grupos": 2,
+          "bytes": 430245,
+          "archivos": 19
+        },
+        "gris": {
+          "grupos": 0,
+          "bytes": 0,
+          "archivos": 0
+        }
+      },
+      "recuperable": {
+        "seguro": 0,
+        "conCopia": 0,
+        "conRevision": 430245,
+        "total": 430245
+      },
+      "nota": "Verde: regenerable por herramienta. Amarillo: copiar y luego retirar. Rojo: copiar, pero retirar solo tras revisar la dependencia. Las clasificaciones son heurísticas por nombre y atributos, no por contenido ni por quién referencia cada archivo."
+    }
+  },
+  "route_checks": {
+    "/": {
+      "status": 200,
+      "bytes": 4970,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/html": {
+      "status": 200,
+      "bytes": 46964,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/muse": {
+      "status": 200,
+      "bytes": 6113,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/muse?guia=1": {
+      "status": 200,
+      "bytes": 6113,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/apuntadora": {
+      "status": 200,
+      "bytes": 2673,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/chingaquedito": {
+      "status": 200,
+      "bytes": 9498,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/superexportaciones": {
+      "status": 200,
+      "bytes": 10188,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/carpetas": {
+      "status": 200,
+      "bytes": 7398,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/conexiones": {
+      "status": 200,
+      "bytes": 9434,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/cuenta": {
+      "status": 200,
+      "bytes": 3766,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/jules": {
+      "status": 200,
+      "bytes": 5179,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/abejitas": {
+      "status": 200,
+      "bytes": 4487,
+      "has_iart_theme": true,
+      "has_companion": true
+    },
+    "/hackaton": {
+      "status": 200,
+      "bytes": 3252,
+      "has_iart_theme": true,
+      "has_companion": true
+    }
+  },
+  "screenshots": {
+    "beemuse_v2_01_muse_guia.png": {
+      "artifact_path": "C:\\Users\\PC\\.gemini\\antigravity-cli\\brain\\7ad59b25-96bd-4801-b4ca-537463478265\\beemuse_v2_01_muse_guia.png",
+      "evidence_path": "C:\\Users\\PC\\Bee-Muse\\evidencia-auditoria-v0.5.0-rc1\\screenshots\\beemuse_v2_01_muse_guia.png",
+      "size_bytes": 151021,
+      "sha256": "210e89a0656a4be600e3788706bf19248a110eb108770675eb8f63c62323429a"
+    },
+    "beemuse_v2_02_biblioteca_html.png": {
+      "artifact_path": "C:\\Users\\PC\\.gemini\\antigravity-cli\\brain\\7ad59b25-96bd-4801-b4ca-537463478265\\beemuse_v2_02_biblioteca_html.png",
+      "evidence_path": "C:\\Users\\PC\\Bee-Muse\\evidencia-auditoria-v0.5.0-rc1\\screenshots\\beemuse_v2_02_biblioteca_html.png",
+      "size_bytes": 204653,
+      "sha256": "f60131f5370b344611e26ac16c335d500e3fc600cf5a4b21feda606c99375194"
+    },
+    "beemuse_v2_03_apuntadora_pointed.png": {
+      "artifact_path": "C:\\Users\\PC\\.gemini\\antigravity-cli\\brain\\7ad59b25-96bd-4801-b4ca-537463478265\\beemuse_v2_03_apuntadora_pointed.png",
+      "evidence_path": "C:\\Users\\PC\\Bee-Muse\\evidencia-auditoria-v0.5.0-rc1\\screenshots\\beemuse_v2_03_apuntadora_pointed.png",
+      "size_bytes": 112190,
+      "sha256": "f614bb5c98caa46c14a085fdfaff8203702c308047e564e4d05a9e7b6adb817e"
+    },
+    "beemuse_v2_04_chingaquedito_retomar.png": {
+      "artifact_path": "C:\\Users\\PC\\.gemini\\antigravity-cli\\brain\\7ad59b25-96bd-4801-b4ca-537463478265\\beemuse_v2_04_chingaquedito_retomar.png",
+      "evidence_path": "C:\\Users\\PC\\Bee-Muse\\evidencia-auditoria-v0.5.0-rc1\\screenshots\\beemuse_v2_04_chingaquedito_retomar.png",
+      "size_bytes": 246072,
+      "sha256": "d9e4d36838e4b61cb0898267df48f8ef676cfa0e2aa3c2ef24553fbeede17597"
+    },
+    "beemuse_v2_05_superexportaciones.png": {
+      "artifact_path": "C:\\Users\\PC\\.gemini\\antigravity-cli\\brain\\7ad59b25-96bd-4801-b4ca-537463478265\\beemuse_v2_05_superexportaciones.png",
+      "evidence_path": "C:\\Users\\PC\\Bee-Muse\\evidencia-auditoria-v0.5.0-rc1\\screenshots\\beemuse_v2_05_superexportaciones.png",
+      "size_bytes": 247168,
+      "sha256": "0c19c7ed3779e48cb9a9b5bb72e5900eabc5f4bab161d0b929bdc2f3e7f03c0e"
+    },
+    "beemuse_v2_06_archivos_conexiones.png": {
+      "artifact_path": "C:\\Users\\PC\\.gemini\\antigravity-cli\\brain\\7ad59b25-96bd-4801-b4ca-537463478265\\beemuse_v2_06_archivos_conexiones.png",
+      "evidence_path": "C:\\Users\\PC\\Bee-Muse\\evidencia-auditoria-v0.5.0-rc1\\screenshots\\beemuse_v2_06_archivos_conexiones.png",
+      "size_bytes": 237205,
+      "sha256": "e9c046e0c618724f12c963558c0124d70046b8e76599343605cdd87d8f341693"
+    }
+  }
+}
