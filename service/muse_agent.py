@@ -11,6 +11,7 @@ import threading
 import traceback
 import uuid
 import colmena_contexto
+import mcp_servers
 import muse_bridge
 
 LOCK = threading.Lock()
@@ -107,6 +108,8 @@ def converse(message, history=None, selected_workspace=None):
             indexed=indexed_tools_config()
             if indexed:
                 command += ['--config','mcpServers.bee-muse='+json.dumps(indexed['bee-muse'],ensure_ascii=False)]
+            for nombre,cfg in mcp_servers.habilitados(Path(os.environ['BEE_LIBRARY_DIR']) if os.environ.get('BEE_LIBRARY_DIR') else None):
+                command += ['--config','mcpServers.'+nombre+'='+json.dumps(cfg,ensure_ascii=False)]
             try:
                 with (root/'output.jsonl').open('w+b') as output, (root/'error.txt').open('w+b') as error:
                     result=subprocess.run(command,cwd=work,stdin=subprocess.DEVNULL,

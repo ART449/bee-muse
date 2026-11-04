@@ -1,0 +1,14 @@
+/* Hilos de conversación: barra sobre el chat de Muse. */
+#hilosBarra{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:14px 0 4px;padding:10px 12px;border:1px solid var(--line,#3c344b);border-radius:12px;background:var(--paper,#18171f)}
+#hilosBarra .hilos-actual{flex:1 1 220px;min-width:0;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hilosBarra .hilos-actual small{display:block;font-weight:400;color:var(--muted,#b9b3c8)}
+#hilosBarra button{min-height:40px}
+#hilosLista{width:100%;margin:0;padding:0;list-style:none;display:grid;gap:6px;max-height:40vh;overflow:auto}
+#hilosLista li{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line,#3c344b);border-radius:10px}
+#hilosLista li.hilo-activo{border-color:var(--honey,#ffd700);box-shadow:inset 3px 0 0 var(--honey,#ffd700)}
+#hilosLista .hilo-titulo{flex:1 1 200px;min-width:0;text-align:left;background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:4px 0}
+#hilosLista .hilo-titulo small{display:block;color:var(--muted,#b9b3c8);font-size:12px}
+#hilosLista .hilo-acciones{display:flex;gap:6px}
+#hilosLista .hilo-acciones button{min-height:36px;padding:4px 10px;font-size:14px}
+#hilosLista input{min-height:36px;flex:1 1 200px}
+#hilosAviso{width:100%;margin:0;color:var(--muted,#b9b3c8);font-size:14px}
