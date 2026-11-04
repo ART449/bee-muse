@@ -46,6 +46,19 @@ Consulta [MCP.md](MCP.md) para conectar otras IA, y [ANDROID.md](ANDROID.md) par
 
 El repositorio no incluye catálogo personal, historial, cuentas ni credenciales. Muse Code requiere su propia instalación y sesión. Los modelos trabajan en la nube y pueden recibir el contenido necesario para las tareas solicitadas.
 
+## Instalación
+
+Descarga el paquete de tu sistema desde la [última release](https://github.com/ART449/bee-muse/releases) y comprueba su huella con el archivo `.sha256` que la acompaña.
+
+- **Windows:** descomprime el ZIP y ejecuta `Instalar-Bee-Muse.cmd` (incluye desinstalador), o abre `Bee-Muse.exe` directamente desde la carpeta.
+- **Linux y macOS:** `tar -xzf` del TAR.GZ y ejecuta el binario `Bee-Muse` de la carpeta extraída.
+
+Los paquetes no están firmados ni notarizados; el sistema puede pedir confirmación al abrirlos. Muse Code se instala por separado y se usa con tu propia sesión.
+
+## Licencia
+
+Código, documentación y arte de la mascota CyberBee/OctoHype (originales de IArtLabs) se distribuyen bajo la licencia [MIT](LICENSE). Muse Code, Meta y las dependencias de terceros conservan sus propias licencias.
+
 ## Versionado
 
 El primer commit conserva una base recuperada. Los cambios de conversación y herramientas se registran en commits posteriores. Las copias originales de trabajo se conservaron antes de editar.
