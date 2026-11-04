@@ -30,3 +30,7 @@ android/local.properties
 android/app/src/main/assets/companion/
 *.jks
 *.keystore
+
+# iOS (generados por XcodeGen en CI)
+ios/Info.plist
+ios/*.xcodeproj
