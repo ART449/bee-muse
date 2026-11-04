@@ -63,8 +63,17 @@ jobs:
         run: python scripts/smoke_backend.py
       - run: npm ci
         working-directory: desktop
-      - run: npm run package
+      - name: Empaquetar Electron (reintenta si la descarga de Electron se corta)
+        shell: bash
         working-directory: desktop
+        run: |
+          for i in 1 2 3; do
+            npm run package && exit 0
+            echo "::warning::npm run package falló (intento $i/3), reintentando en 20 s"
+            rm -rf ~/.cache/electron ~/Library/Caches/electron "$LOCALAPPDATA/electron/Cache" 2>/dev/null || true
+            sleep 20
+          done
+          exit 1
       - run: python scripts/archive_desktop.py
       - uses: actions/upload-artifact@v6
         with:
