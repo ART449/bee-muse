@@ -10,7 +10,7 @@ jobs:
   simulator:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: brew install xcodegen
       - run: xcodegen generate --spec ios/project.yml
       - run: >
@@ -22,7 +22,7 @@ jobs:
       - run: |
           cd ios/build/Build/Products/Debug-iphonesimulator
           zip -r "$GITHUB_WORKSPACE/Bee-Muse-iOS-simulator.zip" Bee-Muse.app
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: Bee-Muse-iOS-simulator
           path: Bee-Muse-iOS-simulator.zip
