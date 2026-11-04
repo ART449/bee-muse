@@ -1,5 +1,5 @@
 'use strict';
-const {app,BrowserWindow,Menu,dialog,shell,ipcMain}=require('electron');
+const {app,BrowserWindow,Menu,dialog,shell,ipcMain,clipboard}=require('electron');
 const fs=require('node:fs');
 const path=require('node:path');
 const {spawn,spawnSync}=require('node:child_process');
@@ -68,11 +68,27 @@ function menu(){
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     {label:'Bee-Muse',submenu:[{label:'Mis archivos · elegir carpetas',click:()=>mainWindow.loadURL(origin+'/')},{label:'Mostrar carpeta de la aplicación',click:()=>shell.openPath(app.getPath('userData'))},{type:'separator'},{role:'quit',label:'Salir'}]},
     {label:'Ir a',submenu:[['Mis archivos','/'],['Biblioteca HTML','/html'],['Carpetas y movimientos','/carpetas'],['Muse','/muse'],['Apuntadora','/apuntadora'],['Conexiones','/conexiones'],['Hackatón','/hackaton']].map(([label,route])=>({label,click:()=>mainWindow.loadURL(origin+route)}))},
+    {label:'Editar',submenu:[{role:'undo',label:'Deshacer'},{role:'redo',label:'Rehacer'},{type:'separator'},{role:'cut',label:'Cortar'},{role:'copy',label:'Copiar'},{role:'paste',label:'Pegar'},{role:'selectAll',label:'Seleccionar todo'}]},
     {label:'Navegador',submenu:[{label:'Abrir navegador Bee-Muse',click:()=>openBrowser(mainWindow)}]},
     {label:'Vista',submenu:[{role:'reload',label:'Recargar vista'},{role:'resetZoom',label:'Tamaño original'},{role:'zoomIn',label:'Acercar'},{role:'zoomOut',label:'Alejar'},{role:'togglefullscreen',label:'Pantalla completa'}]},
     {label:'Ayuda',submenu:[{label:'Acerca de Bee-Muse',click:()=>dialog.showMessageBox(mainWindow,{message:'Bee-Muse · IART Labs · La Colmena',detail:'Aplicación de escritorio 0.5.0. Biblioteca local y Muse en nube. Compilación de Windows; distribución pública y firma pendientes.'})}]}
   ]));
 }
+function contextMenu(contents){
+  contents.on('context-menu',(event,params)=>{
+    const items=[];
+    const text=(params.selectionText||'').trim();
+    if(params.linkURL){items.push({label:'Copiar enlace',click:()=>clipboard.writeText(params.linkURL)},{type:'separator'});}
+    if(params.isEditable){items.push({role:'undo',label:'Deshacer'},{role:'redo',label:'Rehacer'},{type:'separator'},{role:'cut',label:'Cortar'},{role:'copy',label:'Copiar'},{role:'paste',label:'Pegar'},{role:'selectAll',label:'Seleccionar todo'});}
+    else if(text){items.push({role:'copy',label:'Copiar'},{role:'selectAll',label:'Seleccionar todo'});}
+    else{items.push({role:'selectAll',label:'Seleccionar todo'});}
+    if(params.mediaType==='image'&&params.srcURL){items.push({type:'separator'},{label:'Copiar imagen',click:()=>contents.copyImageAt(params.x,params.y)});}
+    if(!app.isPackaged){items.push({type:'separator'},{label:'Inspeccionar',click:()=>contents.inspectElement(params.x,params.y)});}
+    event.preventDefault();
+    Menu.buildFromTemplate(items).popup({window:BrowserWindow.fromWebContents(contents)||undefined,x:params.x,y:params.y});
+  });
+}
+app.on('web-contents-created',(event,contents)=>contextMenu(contents));
 function startBackend(folder){return new Promise((resolve,reject)=>{
   const exe=path.join(resources(),'backend',process.platform==='win32'?'bee-muse-service.exe':'bee-muse-service');
   const logs=path.join(app.getPath('userData'),'service.log');
