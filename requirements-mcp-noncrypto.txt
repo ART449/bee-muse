@@ -1,0 +1,16 @@
+# Dependencias de mcp==1.30.0 sin el extra pyjwt[crypto] (cryptography no publica wheels win_arm64;
+# compilarla exige Rust + OpenSSL arm64). Solo para windows-arm64; después: pip install mcp==1.30.0 --no-deps
+anyio>=4.5
+httpx-sse>=0.4
+httpx<1.0.0,>=0.27.1
+jsonschema>=4.20.0
+pydantic-settings>=2.5.2
+pydantic<3.0.0,>=2.12.0
+pyjwt>=2.10.1
+python-multipart>=0.0.9
+pywin32>=311; sys_platform == "win32"
+sse-starlette>=1.6.1
+starlette>=0.48.0
+typing-extensions>=4.9.0
+typing-inspection>=0.4.1
+uvicorn>=0.31.1
