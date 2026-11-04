@@ -2,7 +2,7 @@ name: Build Bee-Muse Android
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: ['main', 'feat/ports-**']
     paths: ['android/**', 'service/mascotas/cyberbee-octohype/**', '.github/workflows/android.yml']
 permissions:
   contents: read
