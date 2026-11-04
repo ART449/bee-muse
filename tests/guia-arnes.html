@@ -1,0 +1,26 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Arnés guía</title><link rel="stylesheet" href="../service/guia.css">
+<style>body{margin:0;padding:40px;font:16px system-ui;background:#0a0a0f;color:#fff;height:2000px}button,a{display:inline-block;margin:20px;padding:12px}</style></head>
+<body>
+<h1>Arnés</h1>
+<button id="cont" data-tour="continuar">Continuar</button>
+<button id="dictar">🎙 Dictar con Muse</button>
+<a id="loc" href="/html?locate=abc123">Catálogo sintético</a>
+<pre id="resultado"></pre>
+<script src="../service/guia.js" defer></script>
+<script>
+const R=[];const log=(k,v)=>{R.push(k+'='+v);document.getElementById('resultado').textContent=R.join('\n');};
+const q=s=>document.querySelector(s);const txt=s=>(q(s)||{}).textContent||'';
+const mm=(x,y)=>document.dispatchEvent(new MouseEvent('mousemove',{clientX:x,clientY:y,bubbles:true}));
+const esc=()=>document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+const btn=t=>Array.from(document.querySelectorAll('.guia-btn')).find(b=>b.textContent===t);
+try{localStorage.removeItem('bee-guia-vista');}catch{}
+const forzada=location.search.includes('guia=1');
+setTimeout(()=>{log('permiso_visible',!!q('.guia-permiso'));log('texto_meta',txt('.guia-permiso').includes('creada por Meta'));log('firma',txt('.guia-permiso').includes('darle unas buenas manos'));mm(100,100);btn('Sí, muéstrame').click();},forzada?600:1300);
+setTimeout(()=>{log('cursor_nace',!!q('.guia-cursor'));log('cursor_en_mouse',(q('.guia-cursor')||{style:{}}).style.transform);log('paso1',txt('.guia-tarjeta .guia-paso'));log('blanco1',q('#cont').classList.contains('guia-blanco'));log('reduced_transition',getComputedStyle(q('.guia-cursor')).transitionDuration);},1700);
+setTimeout(()=>{log('esperando_foco',document.activeElement&&document.activeElement.textContent);log('cursor_sobre_blanco',(q('.guia-cursor')||{style:{}}).style.transform);q('#cont').click();},2900);
+setTimeout(()=>{log('paso2',txt('.guia-tarjeta .guia-paso'));log('blanco2_respaldo_dictar',q('#dictar').classList.contains('guia-blanco'));mm(600,900);},3100);
+setTimeout(()=>{log('detenida_por_mouse',!q('.guia-tarjeta')&&!q('.guia-cursor'));log('aviso',txt('.guia-aviso'));log('blanco_limpio',!q('.guia-blanco'));window.BeeGuia.iniciar();},3500);
+setTimeout(()=>{log('reinicio_paso',txt('.guia-tarjeta .guia-paso'));esc();},4700);
+setTimeout(()=>{log('detenida_por_esc',!q('.guia-tarjeta')&&!q('.guia-cursor'));log('saltar_visible_tras_iniciar',(()=>{window.BeeGuia.iniciar();return !!btn('Saltar guía');})());btn('Saltar guía').click();log('detenida_por_saltar',!q('.guia-tarjeta'));q('#cont').remove();q('#dictar').remove();q('#loc').remove();window.BeeGuia.iniciar();},5000);
+setTimeout(()=>{log('sin_blancos_cierre_limpio',txt('.guia-tarjeta .guia-paso')+'|'+txt('.guia-tarjeta p').slice(0,30));log('marca_guardada',localStorage.getItem('bee-guia-vista'));log('FIN',true);},5400);
+</script></body></html>

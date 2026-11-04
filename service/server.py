@@ -181,7 +181,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send((BASE/'chingaquedito.js').read_bytes(),'text/javascript; charset=utf-8')
             if route == '/api/chingaquedito':
                 return self.send(chingaquedito.status(BASE))
-            if route in ('/cuenta.js','/muse.js','/apuntadora-buscar.js','/apuntadora.js','/apuntadora.css'):
+            if route in ('/cuenta.js','/muse.js','/apuntadora-buscar.js','/apuntadora.js','/apuntadora.css','/guia.js','/guia.css'):
                 return self.send((BASE/route[1:]).read_bytes(),'text/css; charset=utf-8' if route.endswith('.css') else 'text/javascript; charset=utf-8')
             if route == '/api/account/config':
                 config=account_identity.config(BASE)
