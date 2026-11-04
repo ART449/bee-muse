@@ -14,7 +14,7 @@ const PASOS=[
   {blanco:'voz',texto:'Para pedir por voz: pulsa, habla y suelta; el texto queda listo en el cuadro. Ahora tú, dale aquí.',respaldo:()=>Array.from(document.querySelectorAll('button')).find(b=>/Dictar/.test(b.textContent||''))||null},
   {blanco:'apuntadora',texto:'Pide un HTML y la Apuntadora lo señala sin sacarte de la conversación. Ahora tú, dale aquí.',respaldo:()=>document.querySelector('a[href*="/html?locate="],a[href*="/html?point="]')}
 ];
-let ultimo=null,activa=false,estado='',cursor=null,tarjeta=null,blancoActual=null,escuchaClic=null,focoPrevio=null,temporizador=0,origenViaje=null;
+let ultimo=null,activa=false,estado='',hechos=0,cursor=null,tarjeta=null,blancoActual=null,escuchaClic=null,focoPrevio=null,temporizador=0,origenViaje=null;
 document.addEventListener('mousemove',e=>{ultimo={x:e.clientX,y:e.clientY};if(activa&&estado==='viajando'&&origenViaje&&Math.hypot(e.clientX-origenViaje.x,e.clientY-origenViaje.y)>24)detener('mouse');},{passive:true});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&activa){e.preventDefault();detener('esc');}});
 function el(tag,clase,texto){const n=document.createElement(tag);if(clase)n.className=clase;if(texto!=null)n.textContent=texto;return n;}
@@ -39,7 +39,7 @@ function pedirPermiso(){
 }
 function iniciar(){
   if(activa)return;activa=true;focoPrevio=document.activeElement;
-  cursor=el('div','guia-cursor');cursor.setAttribute('aria-hidden','true');
+  hechos=0;cursor=el('div','guia-cursor');cursor.setAttribute('aria-hidden','true');
   const inicio=ultimo||{x:innerWidth/2,y:innerHeight/2};
   cursor.style.transform='translate('+inicio.x+'px,'+inicio.y+'px)';document.body.appendChild(cursor);
   tarjeta=el('div','guia-tarjeta');tarjeta.setAttribute('role','dialog');tarjeta.setAttribute('aria-live','polite');document.body.appendChild(tarjeta);
@@ -52,8 +52,8 @@ function paso(i){
   if(i>=PASOS.length){return terminar();}
   const p=PASOS[i],n=buscar(p);blancoActual=n;n.classList.add('guia-blanco');
   tarjeta.replaceChildren();tarjeta.appendChild(el('div','guia-paso','Paso '+(i+1)+' de '+PASOS.length));tarjeta.appendChild(el('p',null,p.texto));
-  const fila=el('div','guia-botones');fila.appendChild(boton('Saltar guía',null,()=>detener('saltar')));fila.appendChild(boton('Siguiente','guia-primario',()=>paso(i+1)));tarjeta.appendChild(fila);
-  escuchaClic=()=>paso(i+1);n.addEventListener('click',escuchaClic,{once:true});
+  const fila=el('div','guia-botones');fila.appendChild(boton('Saltar guía',null,()=>detener('saltar')));fila.appendChild(boton('Siguiente','guia-primario',()=>{hechos++;paso(i+1);}));tarjeta.appendChild(fila);
+  escuchaClic=()=>{hechos++;paso(i+1);};n.addEventListener('click',escuchaClic,{once:true});
   n.scrollIntoView({block:'center',behavior:reducido()?'auto':'smooth'});
   estado='viajando';origenViaje=ultimo?{x:ultimo.x,y:ultimo.y}:null;
   clearTimeout(temporizador);
@@ -70,7 +70,7 @@ function reubicar(){if(activa&&blancoActual)colocar(blancoActual);}
 function limpiarBlanco(){if(blancoActual){blancoActual.classList.remove('guia-blanco');if(escuchaClic)blancoActual.removeEventListener('click',escuchaClic);}blancoActual=null;escuchaClic=null;}
 function terminar(){
   limpiarBlanco();estado='fin';if(cursor)cursor.remove();cursor=null;
-  tarjeta.replaceChildren();tarjeta.appendChild(el('div','guia-paso','Listo'));tarjeta.appendChild(el('p',null,'Ya hiciste las tres acciones. Puedes repetir la guía desde el menú Ayuda cuando quieras.'));
+  tarjeta.replaceChildren();tarjeta.appendChild(el('div','guia-paso','Listo'));tarjeta.appendChild(el('p',null,hechos>=PASOS.length?'Ya hiciste las tres acciones. Puedes repetir la guía desde el menú Ayuda cuando quieras.':hechos>0?'Recorrido terminado: esta pantalla tenía '+hechos+' de '+PASOS.length+' pasos. Puedes repetir la guía desde el menú Ayuda.':'Esta pantalla aún no tiene los pasos de la guía. Ábrela desde Muse e inténtalo de nuevo.'));
   const fila=el('div','guia-botones');fila.appendChild(boton('Cerrar','guia-primario',()=>detener('fin')));tarjeta.appendChild(fila);
   const t=tarjeta.getBoundingClientRect();tarjeta.style.left=Math.max(16,(innerWidth-t.width)/2)+'px';tarjeta.style.top=Math.max(16,innerHeight-t.height-32)+'px';
   tarjeta.querySelector('.guia-primario').focus();clearTimeout(temporizador);temporizador=setTimeout(()=>detener('fin'),8000);
