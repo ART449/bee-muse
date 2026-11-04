@@ -26,6 +26,9 @@ import html_indexer
 import file_catalog
 import chingaquedito
 import version_store
+import hilos
+import mcp_servers
+import voz_tts
 
 BASE = Path(os.environ.get('BEE_LIBRARY_DIR',str(Path(__file__).resolve().parent))).resolve()
 MAX_PREVIEW = 2 * 1024 * 1024
@@ -103,7 +106,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', origin)
             self.send_header('Content-Security-Policy', f"sandbox; default-src 'none'; script-src 'none'; style-src 'unsafe-inline' {origin}; img-src data: {origin}; font-src data: {origin}; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri {origin}; form-action 'none'")
         else:
-            csp="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'"
+            csp="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; frame-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'"
             if urlsplit(self.path).path=='/cuenta':
                 domain=account_identity.config(BASE).get('authDomain','')
                 if re.fullmatch(r'[a-zA-Z0-9.-]+',domain):
@@ -172,6 +175,21 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send(data,cookie='bee_identity='+key+'; Path=/; HttpOnly; SameSite=Strict; Max-Age=3600' if key else None)
             if route == '/api/jules/status':
                 return self.send(jules_connector.status(BASE))
+            if route in ('/api/hilos','/api/voz','/api/voz/voces'):
+                if self.headers.get('X-Library-Token') != SESSION_TOKEN:
+                    return self.send({'error':'Solicitud local no autorizada'},status=403)
+                try:
+                    if route == '/api/hilos':
+                        ident=q.get('id',[''])[0]
+                        return self.send(hilos.obtener(BASE,ident) if ident else hilos.listar(BASE))
+                    if route == '/api/voz':
+                        return self.send(voz_tts.status(BASE))
+                    return self.send(voz_tts.voces(BASE))
+                except ValueError as error:
+                    return self.send({'error':str(error)},status=400)
+            if route == '/api/mcp':
+                try:return self.send(mcp_servers.listar(BASE))
+                except ValueError as error:return self.send({'error':str(error)},status=400)
             if route in ('/cuenta','/muse','/hackaton','/apuntadora'):
                 file={'/cuenta':'cuenta.html','/muse':'muse.html','/hackaton':'hackaton.html','/apuntadora':'apuntadora.html'}[route]
                 return self.send((BASE/file).read_bytes(),'text/html; charset=utf-8')
@@ -181,7 +199,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send((BASE/'chingaquedito.js').read_bytes(),'text/javascript; charset=utf-8')
             if route == '/api/chingaquedito':
                 return self.send(chingaquedito.status(BASE))
-            if route in ('/cuenta.js','/muse.js','/apuntadora-buscar.js','/apuntadora.js','/apuntadora.css'):
+            if route in ('/cuenta.js','/muse.js','/apuntadora-buscar.js','/apuntadora.js','/apuntadora.css','/hilos.js','/hilos.css','/conexiones-extra.js'):
                 return self.send((BASE/route[1:]).read_bytes(),'text/css; charset=utf-8' if route.endswith('.css') else 'text/javascript; charset=utf-8')
             if route == '/api/account/config':
                 config=account_identity.config(BASE)
@@ -341,12 +359,15 @@ class Handler(BaseHTTPRequestHandler):
         jules_routes={'/api/jules/key','/api/jules/forget','/api/jules/check'}
         account_routes={'/api/account/verify','/api/account/logout','/api/account/start-desktop','/api/account/finish-desktop'}
         muse_routes={'/api/muse/account','/api/muse/probe','/api/muse/workspace','/api/muse/start','/api/muse/transcribe'}
+        hilos_routes={'/api/hilos/crear','/api/hilos/activar','/api/hilos/mensaje','/api/hilos/renombrar','/api/hilos/borrar'}
+        mcp_routes={'/api/mcp/guardar','/api/mcp/borrar','/api/mcp/probar'}
+        voz_routes={'/api/voz/clave','/api/voz/olvidar','/api/voz/config','/api/voz/hablar'}
         chingaquedito_routes={'/api/chingaquedito/activar','/api/chingaquedito/frente','/api/chingaquedito/editar','/api/chingaquedito/estado','/api/chingaquedito/volver','/api/chingaquedito/idea','/api/chingaquedito/borrar-frente','/api/chingaquedito/borrar-idea'}
-        if self.path not in ('/api/library/index','/api/files/ask','/api/snapshot','/api/versions/restore','/api/ai/analyze','/api/ai/chat','/api/collections/apply','/api/connections') and self.path not in folder_routes|jules_routes|account_routes|muse_routes|chingaquedito_routes:
+        if self.path not in ('/api/library/index','/api/files/ask','/api/snapshot','/api/versions/restore','/api/ai/analyze','/api/ai/chat','/api/collections/apply','/api/connections') and self.path not in folder_routes|jules_routes|account_routes|muse_routes|chingaquedito_routes|hilos_routes|mcp_routes|voz_routes:
             return self.send({'error':'No encontrado'},status=404)
         try:
             size = int(self.headers.get('Content-Length','0'))
-            if not 0<size<(4000000 if self.path=='/api/muse/transcribe' else 120000 if self.path=='/api/muse/start' else 20000 if self.path in ('/api/library/index','/api/files/ask','/api/ai/chat','/api/collections/apply','/api/connections') or self.path in folder_routes|account_routes|chingaquedito_routes or self.path=='/api/muse/start' else 2048):
+            if not 0<size<(4000000 if self.path=='/api/muse/transcribe' else 120000 if self.path=='/api/muse/start' else 20000 if self.path in ('/api/library/index','/api/files/ask','/api/ai/chat','/api/collections/apply','/api/connections') or self.path in folder_routes|account_routes|chingaquedito_routes|hilos_routes|mcp_routes|voz_routes or self.path=='/api/muse/start' else 2048):
                 raise ValueError()
             body = json.loads(self.rfile.read(size))
             if self.path in ('/api/library/index','/api/files/ask'):
@@ -384,6 +405,23 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send(result)
                 except (ValueError,OSError,TypeError) as error:
                     return self.send({'error':str(error) if isinstance(error,ValueError) else 'No se pudo completar la conexión con Jules.'},status=400)
+            if self.path in hilos_routes|mcp_routes|voz_routes:
+                try:
+                    if not isinstance(body,dict):raise ValueError('Solicitud no válida.')
+                    if self.path=='/api/hilos/crear':return self.send(hilos.crear(BASE,body))
+                    if self.path=='/api/hilos/activar':return self.send(hilos.activar(BASE,body))
+                    if self.path=='/api/hilos/mensaje':return self.send(hilos.mensaje(BASE,body))
+                    if self.path=='/api/hilos/renombrar':return self.send(hilos.renombrar(BASE,body))
+                    if self.path=='/api/hilos/borrar':return self.send(hilos.borrar(BASE,body))
+                    if self.path=='/api/mcp/guardar':return self.send(mcp_servers.guardar(BASE,body))
+                    if self.path=='/api/mcp/borrar':return self.send(mcp_servers.borrar(BASE,body))
+                    if self.path=='/api/mcp/probar':return self.send(mcp_servers.probar(BASE,body))
+                    if self.path=='/api/voz/clave':return self.send(voz_tts.guardar_clave(BASE,body.get('key')))
+                    if self.path=='/api/voz/olvidar':return self.send(voz_tts.olvidar_clave(BASE))
+                    if self.path=='/api/voz/config':return self.send(voz_tts.guardar_config(BASE,body))
+                    return self.send(voz_tts.hablar(BASE,body),'audio/mpeg')
+                except (ValueError,OSError,TypeError) as error:
+                    return self.send({'error':str(error) if isinstance(error,ValueError) else 'No se pudo completar.'},status=400)
             if self.path in chingaquedito_routes:
                 try:
                     if not isinstance(body,dict):raise ValueError('Solicitud no válida.')
