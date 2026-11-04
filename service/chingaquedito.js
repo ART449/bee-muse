@@ -230,6 +230,64 @@ function pintarIdeas(datos) {
   });
 }
 
+let retomarId = null;
+
+function frenteActual(datos) {
+  const frentes = Array.isArray(datos.frentes) ? datos.frentes : [];
+  return frentes.find((f) => f.estado === 'activo') || null;
+}
+
+function pintarRetomar(datos) {
+  const frente = frenteActual(datos);
+  retomarId = frente ? frente.id : null;
+  $('retomar').hidden = !frente;
+  if (!frente) return;
+  $('retomarIbas').textContent = '«' + frente.titulo + '»';
+  $('retomarPendiente').textContent = frente.siguiente || frente.objetivo ||
+    'No apuntaste un siguiente paso. Puedes escribirlo con Editar en ese frente.';
+}
+
+function esHoy(valor) {
+  if (!valor) return false;
+  const fecha = new Date(valor);
+  if (Number.isNaN(fecha.getTime())) return false;
+  const hoy = new Date();
+  return fecha.getFullYear() === hoy.getFullYear() && fecha.getMonth() === hoy.getMonth() && fecha.getDate() === hoy.getDate();
+}
+
+function pintarCierre() {
+  const datos = ultimos;
+  if (!datos) return;
+  const cierre = $('cierre');
+  cierre.textContent = '';
+  const frentes = Array.isArray(datos.frentes) ? datos.frentes : [];
+  const ideas = Array.isArray(datos.ideas) ? datos.ideas : [];
+  const frente = frenteActual(datos);
+  const tocadosHoy = frentes.filter((f) => esHoy(f.tocado) || esHoy(f.creado)).length;
+  const ideasHoy = ideas.filter((i) => esHoy(i.creado)).length;
+  cierre.append(texto('p', 'Esto quedó así: ' + datos.counts.activo + ' en Ahora · ' +
+    datos.counts.aparcado + ' en pausa · ' + datos.counts.terminado + ' terminados.'));
+  if (tocadosHoy || ideasHoy) {
+    cierre.append(texto('p', 'Hoy tocaste ' + tocadosHoy + (tocadosHoy === 1 ? ' frente' : ' frentes') +
+      ' y guardaste ' + ideasHoy + (ideasHoy === 1 ? ' idea.' : ' ideas.')));
+  } else {
+    cierre.append(texto('p', 'Hoy no se guardó nada nuevo. Tu libreta sigue como la dejaste.'));
+  }
+  if (frente) {
+    const abierto = document.createElement('p');
+    abierto.append(document.createTextNode('Quedó abierto: '));
+    const fuerte = document.createElement('strong');
+    fuerte.textContent = '«' + frente.titulo + '»';
+    abierto.append(fuerte, document.createTextNode(frente.siguiente ? ' — ' + frente.siguiente : '. Sin siguiente paso apuntado.'));
+    cierre.append(abierto);
+    cierre.append(texto('p', 'Mañana puedes retomar desde arriba con Continuar. Un solo gesto.'));
+  } else {
+    cierre.append(texto('p', 'No quedó ningún frente activo. Mañana puedes activar uno o seguir en pausa.'));
+  }
+  cierre.hidden = false;
+  cierre.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+
 function pintar(datos) {
   ultimos = datos;
   const roto = Boolean(datos.error);
@@ -238,6 +296,7 @@ function pintar(datos) {
     $('problemaTexto').textContent = datos.error;
     $('activacion').hidden = true;
     $('libreta').hidden = true;
+    $('retomar').hidden = true;
     setStatus('Tu libreta no se pudo leer completa. No se borró nada.');
     return;
   }
@@ -245,8 +304,13 @@ function pintar(datos) {
   $('activacion').hidden = activo;
   $('libreta').hidden = !activo;
   if (activo) {
+    pintarRetomar(datos);
     pintarFrentes(datos);
     pintarIdeas(datos);
+  } else {
+    retomarId = null;
+    $('retomar').hidden = true;
+    $('cierre').hidden = true;
   }
   if (!activo) setStatus(datos.configurado
     ? 'Chingaquedito está en pausa. Nada nuevo se guarda hasta que lo reactives.'
@@ -268,6 +332,20 @@ async function actuar(accion) {
     document.querySelectorAll('#libreta button, #activar').forEach((b) => { b.disabled = false; });
   }
 }
+
+$('continuar').addEventListener('click', async () => {
+  const id = retomarId;
+  if (!id) return;
+  await actuar(() => send('/api/chingaquedito/volver', { id }));
+  const card = document.querySelector('.card[data-id="' + id + '"]');
+  if (card) {
+    card.classList.add('continuado');
+    card.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    setTimeout(() => card.classList.remove('continuado'), 6000);
+  }
+});
+
+$('cerrarHoy').addEventListener('click', pintarCierre);
 
 $('activar').addEventListener('click', () => actuar(() => send('/api/chingaquedito/activar', { activo: true })));
 $('pausar').addEventListener('click', () => actuar(() => send('/api/chingaquedito/activar', { activo: false })));

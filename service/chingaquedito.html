@@ -44,6 +44,10 @@ p{margin:10px 0}
 .idea p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .idea .small{margin-top:6px;display:block}
 .empty{padding:14px 0}
+.retomar{border-color:var(--honey)}
+.retomar p{margin:6px 0}
+.card.continuado{outline:4px solid var(--honey);outline-offset:6px}
+#cierre p{margin:6px 0}
 .skip-link{position:absolute;left:-10000px;top:auto}
 .skip-link:focus{left:12px;top:12px;z-index:10}
 [hidden]{display:none!important}
@@ -59,6 +63,7 @@ p{margin:10px 0}
   <a href="/apuntadora">Apuntadora</a>
   <a href="/muse">Muse</a>
   <a href="/conexiones">Conexiones</a>
+  <a href="/superexportaciones">Superexportaciones</a>
 </nav>
 <div class="brand-signature">IART Labs · La Colmena</div>
 <header class="hero">
@@ -93,6 +98,15 @@ p{margin:10px 0}
 </section>
 
 <section id="libreta" hidden aria-label="Tu libreta de frentes">
+  <section id="retomar" class="panel retomar" hidden aria-labelledby="retomarTitle">
+    <h2 id="retomarTitle">Retomar donde ibas</h2>
+    <p><strong>Ibas en:</strong> <span id="retomarIbas"></span></p>
+    <p><strong>Quedó pendiente:</strong> <span id="retomarPendiente"></span></p>
+    <div class="actions">
+      <button class="primary" id="continuar" type="button" data-tour="continuar">Continuar</button>
+    </div>
+  </section>
+
   <section class="panel" aria-labelledby="nuevoTitle">
     <h2 id="nuevoTitle">Un frente nuevo</h2>
     <p class="small">Con el título basta para empezar. Lo demás lo puedes completar después con el botón <strong>Editar</strong> de cada frente.</p>
@@ -147,6 +161,15 @@ p{margin:10px 0}
     <h2 id="ideasTitle">Ideas guardadas</h2>
     <p class="small">Puedes borrar una idea cuando ya no la necesites. Borrar un frente no borra sus ideas: solo las deja sin frente.</p>
     <div id="ideas"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="cierreTitle">
+    <h2 id="cierreTitle">Cerrar por hoy</h2>
+    <p class="small">Un resumen cortito con lo que tú mismo apuntaste: qué quedó activo y qué sigue abierto. No se guarda nada nuevo y no sale de este equipo.</p>
+    <div class="actions">
+      <button id="cerrarHoy" type="button">Cerrar por hoy</button>
+    </div>
+    <div id="cierre" hidden aria-live="polite"></div>
   </section>
 
   <section class="panel" aria-labelledby="pausaTitle">

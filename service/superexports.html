@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bee-Muse · Superexportaciones</title>
+<link rel="stylesheet" href="/bee-sprites.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1100px;margin:auto;padding:28px 22px 80px}
+nav{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:18px}
+a,button,input,select,textarea{font:inherit}
+a{min-height:44px;display:inline-flex;align-items:center}
+button{min-height:44px;padding:10px 16px;border:1px solid;border-radius:10px;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+input,select,textarea{width:100%;padding:11px 13px;border:1px solid;border-radius:10px;margin-top:6px}
+textarea{resize:vertical;min-height:72px;font-family:ui-monospace,Consolas,monospace;font-size:14px}
+label{display:block;font-size:14px;font-weight:650;margin-top:14px}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.18;margin:8px 0}
+h2{font-size:22px;margin:0 0 10px}
+p{margin:10px 0}
+.panel{border:1px solid;border-radius:16px;padding:22px;margin:20px 0}
+.hero{display:flex;gap:20px;align-items:flex-start}
+.hero .bee-sprite{width:64px;height:73px;flex:none;background-color:#050505;border-radius:14px}
+.status{padding:14px 18px;border:1px solid;border-radius:12px;margin:18px 0;min-height:52px;white-space:pre-wrap}
+.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.small{font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid label{margin-top:0}
+.totales{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0}
+.metric{border:1px solid;border-radius:12px;padding:12px 14px}
+.metric strong{display:block;font-size:22px}
+.metric span{font-size:13px}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:1px;text-transform:uppercase}
+td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ruta{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;overflow-wrap:anywhere}
+.sem{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.verde .sem{background:#3ddc84}.amarillo .sem{background:#ffd700}.rojo .sem{background:#ff4d6d}.gris .sem{background:#8a8699}
+.badge{font-size:12px;border:1px solid;border-radius:20px;padding:3px 9px;white-space:nowrap}
+tr.rojo td:first-child{border-left:3px solid #ff4d6d}tr.verde td:first-child{border-left:3px solid #3ddc84}tr.amarillo td:first-child{border-left:3px solid #ffd700}tr.gris td:first-child{border-left:3px solid #8a8699}
+.riesgos{margin:4px 0 0;padding-left:16px;font-size:12.5px}
+.progreso{height:10px;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:10px}
+.progreso div{height:100%;background:var(--honey,#ffd700);width:0;transition:width .3s}
+.candado{border:2px solid #ff4d6d}
+.candado label{margin-top:10px}
+.lista{list-style:none;padding:0;margin:10px 0 0}
+.lista li{border-top:1px solid var(--line);padding:8px 0}
+.skip-link{position:absolute;left:-10000px;top:auto}
+.skip-link:focus{left:12px;top:12px;z-index:10}
+[hidden]{display:none!important}
+@media(max-width:720px){main{padding:22px 16px 64px}.grid{grid-template-columns:1fr}.hero .bee-sprite{width:48px;height:55px}th:nth-child(5),td:nth-child(5){display:none}}
+</style>
+<link rel="stylesheet" href="/iart-theme.css">
+<link rel="stylesheet" href="/companion.css"></head>
+<body>
+<a class="skip-link" href="#contenido">Ir al contenido</a>
+<main id="contenido">
+<nav aria-label="Áreas de Bee-Muse">
+  <a href="/">Biblioteca HTML</a>
+  <a href="/carpetas">Carpetas</a>
+  <a href="/apuntadora">Apuntadora</a>
+  <a href="/muse">Muse</a>
+  <a href="/conexiones">Conexiones</a>
+</nav>
+<div class="brand-signature">IART Labs · La Colmena</div>
+<header class="hero">
+  <span class="bee-sprite" aria-hidden="true"></span>
+  <div>
+    <h1>Superexportaciones</h1>
+    <p>Mira qué pesa, cópialo a otro disco, comprueba que llegó entero y solo entonces decide si retiras el original.</p>
+  </div>
+</header>
+
+<div id="status" class="status" role="status">Vista previa por defecto: nada se copia, mueve ni borra hasta que tú lo pidas.</div>
+
+<section class="panel" aria-labelledby="origenTitle">
+  <h2 id="origenTitle">1 · Vista previa</h2>
+  <p class="small">Escribe una carpeta por línea. Se recorre sin copiar nada. Los archivos menores al mínimo no se listan salvo dentro de carpetas regenerables (node_modules, .venv, build…). <strong>.git nunca se exporta.</strong></p>
+  <form id="formPrevia">
+    <label for="origenes">Carpetas de origen</label>
+    <textarea id="origenes" name="origenes" required placeholder="C:\Users\javie\VibeFlow_Pro&#10;C:\Users\javie\Downloads"></textarea>
+    <div class="grid">
+      <div>
+        <label for="minMB">Tamaño mínimo por archivo suelto (MB)</label>
+        <input id="minMB" name="minMB" type="number" min="0" step="1" value="50">
+      </div>
+      <div>
+        <label for="ocultos">Carpetas ocultas</label>
+        <select id="ocultos" name="ocultos">
+          <option value="no">No recorrer ocultas (salvo regenerables)</option>
+          <option value="si">Recorrer también ocultas</option>
+        </select>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="primary" type="submit" id="btnPrevia">Previsualizar</button>
+    </div>
+  </form>
+</section>
+
+<section id="resultado" class="panel" hidden aria-labelledby="resultadoTitle">
+  <h2 id="resultadoTitle">Desglose</h2>
+  <p class="small" id="resumenTexto"></p>
+  <div class="totales" id="totales"></div>
+  <div class="actions">
+    <button type="button" id="selVerde">Seleccionar verdes</button>
+    <button type="button" id="selAmarillo">+ amarillos</button>
+    <button type="button" id="selNada">Quitar selección</button>
+    <span class="small" id="seleccionTexto">0 grupos · 0 B</span>
+  </div>
+  <div style="overflow:auto">
+  <table id="tabla" aria-label="Grupos encontrados">
+    <thead><tr><th></th><th>Color</th><th>Qué es</th><th>Ruta</th><th>Riesgos</th><th class="num">Archivos</th><th class="num">Tamaño</th></tr></thead>
+    <tbody id="filas"></tbody>
+  </table>
+  </div>
+</section>
+
+<section id="destinoPanel" class="panel" hidden aria-labelledby="destinoTitle">
+  <h2 id="destinoTitle">2 · Destino</h2>
+  <p class="small">Tú eliges a dónde. Debe ser una carpeta existente, fuera de los orígenes. No se sobrescribe nada que ya exista ahí.</p>
+  <label for="destino">Carpeta destino</label>
+  <input id="destino" placeholder="I:\Bee-Muse\superexport">
+  <div class="actions">
+    <button class="primary" type="button" id="btnPreparar">Preparar copia</button>
+  </div>
+  <div id="preparado" hidden>
+    <p id="preparadoTexto"></p>
+    <div class="actions">
+      <button class="primary" type="button" id="btnCopiar">3 · Copiar y verificar (SHA-256)</button>
+      <button type="button" id="btnCancelar" hidden>Cancelar copia</button>
+    </div>
+    <div class="progreso" aria-hidden="true"><div id="barra"></div></div>
+    <p class="small" id="progresoTexto"></p>
+  </div>
+</section>
+
+<section id="retiroPanel" class="panel candado" hidden aria-labelledby="retiroTitle">
+  <h2 id="retiroTitle">4 · Retirar originales</h2>
+  <p>Solo se habilita con la copia terminada y verificada. Antes de retirar, cada archivo se vuelve a comprobar: tamaño y fecha del original, y SHA-256 de la copia. Si algo cambió, no se retira nada.</p>
+  <p class="small"><strong>Esto no promete que nada se rompa.</strong> La clasificación es por nombre y atributos; una dependencia que no se ve (una ruta fija en una configuración, un programa que espera esa carpeta) no la detecta.</p>
+  <div id="rojosAviso" hidden>
+    <p>Grupos en rojo dentro de esta copia. Acepta cada uno para incluirlo en el retiro:</p>
+    <ul class="lista" id="rojosLista"></ul>
+  </div>
+  <label for="modo">Modo</label>
+  <select id="modo">
+    <option value="cuarentena">Cuarentena · renombrar en el mismo disco (reversible, no libera espacio todavía)</option>
+    <option value="borrar">Borrar · elimina los originales (libera espacio, no reversible)</option>
+  </select>
+  <label for="frase">Escribe la frase exacta: <code id="fraseEsperada">RETIRAR ORIGINALES</code></label>
+  <input id="frase" autocomplete="off">
+  <label><input type="checkbox" id="confirmar" style="width:auto;margin-right:8px"> Entiendo que esto toca mis archivos originales y vi el recibo.</label>
+  <div class="actions">
+    <button type="button" id="btnRetirar" disabled>Retirar originales</button>
+  </div>
+  <p class="small" id="retiroTexto"></p>
+</section>
+
+<section class="panel" aria-labelledby="recibosTitle">
+  <h2 id="recibosTitle">Recibos</h2>
+  <p class="small">Cada copia deja un recibo JSON junto a la biblioteca con ruta, bytes, SHA-256 de origen y destino, y qué se retiró. Es el comprobante.</p>
+  <ul class="lista" id="recibos"><li class="small">Sin recibos todavía.</li></ul>
+</section>
+
+<section class="panel" aria-labelledby="coloresTitle">
+  <h2 id="coloresTitle">Qué significa cada color</h2>
+  <p class="verde"><span class="sem"></span><strong>Verde</strong> · regenerable con una herramienta (npm ci, pip, volver a compilar). Retirar suele ser seguro si la herramienta sigue instalada.</p>
+  <p class="amarillo"><span class="sem"></span><strong>Amarillo</strong> · grande y copiable: modelos, ISOs, comprimidos, video, instaladores. Copiar primero; retirar después.</p>
+  <p class="rojo"><span class="sem"></span><strong>Rojo</strong> · copiable pero con dependencia: repo git, AppData, enlaces, Ollama, bases de datos, modificado hace poco. Revisa antes de retirar.</p>
+  <p class="gris"><span class="sem"></span><strong>Gris</strong> · no se pudo leer.</p>
+</section>
+</main>
+<script src="/superexports.js"></script>
+<script src="/companion.js"></script></body>
+</html>

@@ -25,6 +25,7 @@ import voice_bridge
 import html_indexer
 import file_catalog
 import chingaquedito
+import superexports
 import version_store
 
 BASE = Path(os.environ.get('BEE_LIBRARY_DIR',str(Path(__file__).resolve().parent))).resolve()
@@ -166,6 +167,18 @@ class Handler(BaseHTTPRequestHandler):
             if route in ('/cuenta','/muse','/hackaton','/apuntadora'):
                 file={'/cuenta':'cuenta.html','/muse':'muse.html','/hackaton':'hackaton.html','/apuntadora':'apuntadora.html'}[route]
                 return self.send((BASE/file).read_bytes(),'text/html; charset=utf-8')
+            if route in ('/superexportaciones','/superexports.html'):
+                return self.send((BASE/'superexports.html').read_bytes(),'text/html; charset=utf-8')
+            if route == '/superexports.js':
+                return self.send((BASE/'superexports.js').read_bytes(),'text/javascript; charset=utf-8')
+            if route == '/api/superexports':
+                return self.send(superexports.status(BASE))
+            if route in ('/api/superexports/estado','/api/superexports/recibo'):
+                q=parse_qs(url.query);ident=q.get('id',[''])[0]
+                try:
+                    return self.send(superexports.estado(BASE,ident) if route.endswith('estado') else superexports.recibo(BASE,ident))
+                except ValueError as error:
+                    return self.send({'error':str(error)},status=400)
             if route in ('/chingaquedito','/chingaquedito.html'):
                 return self.send((BASE/'chingaquedito.html').read_bytes(),'text/html; charset=utf-8')
             if route == '/chingaquedito.js':
@@ -332,12 +345,13 @@ class Handler(BaseHTTPRequestHandler):
         jules_routes={'/api/jules/key','/api/jules/forget','/api/jules/check'}
         account_routes={'/api/account/verify','/api/account/logout','/api/account/start-desktop','/api/account/finish-desktop'}
         muse_routes={'/api/muse/account','/api/muse/probe','/api/muse/workspace','/api/muse/start','/api/muse/transcribe'}
+        superexports_routes={'/api/superexports/previsualizar','/api/superexports/preparar','/api/superexports/copiar','/api/superexports/cancelar','/api/superexports/retirar'}
         chingaquedito_routes={'/api/chingaquedito/activar','/api/chingaquedito/frente','/api/chingaquedito/editar','/api/chingaquedito/estado','/api/chingaquedito/volver','/api/chingaquedito/idea','/api/chingaquedito/borrar-frente','/api/chingaquedito/borrar-idea'}
-        if self.path not in ('/api/library/index','/api/files/ask','/api/snapshot','/api/versions/restore','/api/ai/analyze','/api/ai/chat','/api/collections/apply','/api/connections') and self.path not in folder_routes|jules_routes|account_routes|muse_routes|chingaquedito_routes:
+        if self.path not in ('/api/library/index','/api/files/ask','/api/snapshot','/api/versions/restore','/api/ai/analyze','/api/ai/chat','/api/collections/apply','/api/connections') and self.path not in folder_routes|jules_routes|account_routes|muse_routes|chingaquedito_routes|superexports_routes:
             return self.send({'error':'No encontrado'},status=404)
         try:
             size = int(self.headers.get('Content-Length','0'))
-            if not 0<size<(4000000 if self.path=='/api/muse/transcribe' else 120000 if self.path=='/api/muse/start' else 20000 if self.path in ('/api/library/index','/api/files/ask','/api/ai/chat','/api/collections/apply','/api/connections') or self.path in folder_routes|account_routes|chingaquedito_routes or self.path=='/api/muse/start' else 2048):
+            if not 0<size<(4000000 if self.path=='/api/muse/transcribe' else 120000 if self.path=='/api/muse/start' else 20000 if self.path in ('/api/library/index','/api/files/ask','/api/ai/chat','/api/collections/apply','/api/connections') or self.path in folder_routes|account_routes|chingaquedito_routes|superexports_routes or self.path=='/api/muse/start' else 2048):
                 raise ValueError()
             body = json.loads(self.rfile.read(size))
             if self.path in ('/api/library/index','/api/files/ask'):
@@ -375,6 +389,17 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send(result)
                 except (ValueError,OSError,TypeError) as error:
                     return self.send({'error':str(error) if isinstance(error,ValueError) else 'No se pudo completar la conexión con Jules.'},status=400)
+            if self.path in superexports_routes:
+                try:
+                    if not isinstance(body,dict):raise ValueError('Solicitud no válida.')
+                    if self.path=='/api/superexports/previsualizar':result=superexports.previsualizar(BASE,body)
+                    elif self.path=='/api/superexports/preparar':result=superexports.preparar(BASE,body)
+                    elif self.path=='/api/superexports/copiar':result=superexports.copiar(BASE,body)
+                    elif self.path=='/api/superexports/cancelar':result=superexports.cancelar(BASE,body)
+                    else:result=superexports.retirar(BASE,body)
+                    return self.send(result)
+                except (ValueError,OSError,TypeError) as error:
+                    return self.send({'error':str(error) if isinstance(error,ValueError) else 'No se pudo completar la superexportación; los originales no se tocaron.'},status=400)
             if self.path in chingaquedito_routes:
                 try:
                     if not isinstance(body,dict):raise ValueError('Solicitud no válida.')

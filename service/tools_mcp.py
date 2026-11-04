@@ -15,6 +15,7 @@ from urllib.parse import quote, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
 from mcp.server.fastmcp import FastMCP
+import chingaquedito
 
 PRIVATE_NAMES = {'.env','auth.json','credentials.json','token.json','id_rsa','id_ed25519'}
 PRIVATE_DIRS = {'.git','.credentials','.ssh','.aws','.azure'}
@@ -176,7 +177,52 @@ def inbeebox_get(path):
 
 def create_server(library):
     tools = LibraryTools(Path(library))
+    support_base = Path(library)
     mcp = FastMCP('Bee-Muse · IArtLabs')
+
+    @mcp.tool()
+    def continuity_status() -> dict:
+        """Use Chingaquedito when the user asks what they were doing or wants to resume a task.
+
+        Read only. An inactive notebook exposes no saved contents. Never diagnose,
+        monitor other windows or infer permission to save from a topic change.
+        """
+        state = chingaquedito.status(support_base)
+        if state.get('error'):
+            raise ValueError(state['error'])
+        if not state['activo']:
+            return {'activo': False, 'next_action': 'Ofrece activar Chingaquedito desde su panel antes de consultar o guardar continuidad.'}
+        return {'activo': True, 'frentes': state['frentes'], 'ideas': state['ideas'], 'counts': state['counts']}
+
+    @mcp.tool()
+    def continuity_save_focus(title: str, goal: str='', next_step: str='') -> dict:
+        """Save a focus in Chingaquedito only when the current user asks to save it.
+
+        Requires prior notebook activation; does not activate it automatically.
+        Return the saved ID as a receipt, never pretend a suggestion was saved.
+        """
+        result = chingaquedito.crear_frente(support_base, {'titulo': title, 'objetivo': goal, 'siguiente': next_step})
+        return {'ok': result['ok'], 'cambio': result['cambio'], 'frentes': result['frentes']}
+
+    @mcp.tool()
+    def continuity_park_idea(text: str, focus_id: str | None=None) -> dict:
+        """Use Chingaquedito when the user asks to park/save an idea without losing their task.
+
+        The current focus stays unchanged. Save only user-authorized text, not
+        inferred diagnoses, private background observations or credentials.
+        """
+        result = chingaquedito.guardar_idea(support_base, {'texto': text, 'frente': focus_id})
+        return {'ok': result['ok'], 'cambio': result['cambio'], 'ideas': result['ideas'], 'counts': result['counts']}
+
+    @mcp.tool()
+    def continuity_resume_focus(focus_id: str) -> dict:
+        """Resume an exact focus from continuity_status when the current user asks to return to it.
+
+        Reuse the existing ID; do not invent a new focus. A completed task remains
+        completed unless separately changed by the user.
+        """
+        result = chingaquedito.volver(support_base, {'id': focus_id})
+        return {'ok': result['ok'], 'cambio': result['cambio'], 'frentes': result['frentes']}
 
     @mcp.tool()
     def library_status() -> dict:

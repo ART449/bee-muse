@@ -2,7 +2,7 @@
   'use strict';
   const area=document.getElementById('agentMessage');if(!area)return;
   const send=document.getElementById('agentSend');
-  const record=document.createElement('button');record.type='button';record.textContent='🎙 Dictar con Muse';
+  const record=document.createElement('button');record.type='button';record.setAttribute('data-tour','voz');record.textContent='🎙 Dictar con Muse';
   const readLabel=document.createElement('label');const read=document.createElement('input');read.type='checkbox';readLabel.append(read,document.createTextNode(' Leer respuestas · voz del equipo'));
   const stopSpeech=document.createElement('button');stopSpeech.type='button';stopSpeech.textContent='Detener voz';stopSpeech.onclick=()=>speechSynthesis.cancel();
   const status=document.createElement('p');status.setAttribute('role','status');status.className='small';status.textContent='El micrófono sólo se activa al pulsar Dictar. Meta transcribe; la voz de respuesta la proporciona tu equipo.';
