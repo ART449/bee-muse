@@ -1,53 +1,22 @@
 'use strict';
 const {BrowserWindow,WebContentsView,ipcMain,app}=require('electron');
-const path=require('node:path');
+const crypto=require('node:crypto'),net=require('node:net'),path=require('node:path');
 const {pathToFileURL}=require('node:url');
-let window,view;
+let window,view,toolHandler=()=>{};
 const toolbarURL=pathToFileURL(path.join(__dirname,'browser.html')).href;
-function httpsURL(value){
-  if(typeof value!=='string'||value.length>8192)throw Error('Dirección no válida.');
-  const url=new URL(value.includes('://')?value:'https://'+value);
-  if(url.protocol!=='https:'||!url.hostname||url.username||url.password)throw Error('Usa una dirección HTTPS sin credenciales.');
-  return url.href;
-}
+const searchTemplate=process.env.BEE_SEARCH_URL||'https://www.google.com/search?q={query}';
+function httpsURL(value){if(typeof value!=='string'||value.length>8192)throw Error('Dirección no válida.');const url=new URL(value.includes('://')?value:'https://'+value);if(url.protocol!=='https:'||!url.hostname||url.username||url.password)throw Error('Usa una dirección HTTPS sin credenciales.');return url.href;}
+function searchURL(query){if(typeof query!=='string'||!query.trim()||query.length>2000)throw Error('Escribe una búsqueda válida.');if(!searchTemplate.includes('{query}'))throw Error('El proveedor de búsqueda no está configurado correctamente.');return httpsURL(searchTemplate.replace('{query}',encodeURIComponent(query.trim())));}
+function inputURL(value){if(typeof value!=='string'||!value.trim())throw Error('Escribe una dirección o búsqueda.');const text=value.trim();if(/^https:\/\//i.test(text)||/^[a-z][a-z0-9+.-]*:/i.test(text))return httpsURL(text);if(/^[\w.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(text)&&!text.includes(' '))return httpsURL(text);return searchURL(text);}
 function trusted(event){return window&&!window.isDestroyed()&&event.sender===window.webContents&&event.senderFrame===window.webContents.mainFrame&&event.senderFrame.url===toolbarURL;}
-function state(error=''){
-  if(!window||window.isDestroyed()||!view||view.webContents.isDestroyed())return;
-  const w=view.webContents;
-  window.webContents.send('bee-browser-state',{url:w.getURL()==='about:blank'?'':w.getURL(),title:w.getTitle().slice(0,200),back:w.navigationHistory.canGoBack(),forward:w.navigationHistory.canGoForward(),error});
-}
-ipcMain.handle('bee-browser-action',async(event,action,value)=>{
-  if(!trusted(event)||!view||view.webContents.isDestroyed())throw Error('Solicitud no permitida.');
-  const w=view.webContents;
-  try{
-    if(action==='go')await w.loadURL(httpsURL(value));
-    else if(action==='back'&&w.navigationHistory.canGoBack())w.navigationHistory.goBack();
-    else if(action==='forward'&&w.navigationHistory.canGoForward())w.navigationHistory.goForward();
-    else if(action==='reload')w.reload();
-    else if(action!=='state')throw Error('Acción no admitida.');
-    state();return true;
-  }catch(error){state(error.message);return false;}
-});
-function openBrowser(parent,{show=true}={}){
-  if(window&&!window.isDestroyed()){window.show();window.focus();return;}
-  window=new BrowserWindow({parent,show,title:'Navegador Bee-Muse',width:1150,height:800,minWidth:640,minHeight:400,backgroundColor:'#15121d',webPreferences:{preload:path.join(__dirname,'browser-preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true}});
-  view=new WebContentsView({webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-browser'}});
-  window.contentView.addChildView(view);
-  const resize=()=>{if(!window||window.isDestroyed())return;const [width,height]=window.getContentSize();view.setBounds({x:0,y:100,width,height:Math.max(0,height-100)});};
-  window.on('resize',resize);resize();
-  const contents=view.webContents,session=contents.session;
-  session.setPermissionRequestHandler((w,p,done)=>done(false));session.setPermissionCheckHandler(()=>false);
-  // Save dialogs are owned by Electron; downloaded files are never executed by Bee-Muse.
-  if(!session.beeDownloadConfigured){session.beeDownloadConfigured=true;session.on('will-download',(event,item)=>item.setSaveDialogOptions({title:'Guardar descarga de Bee-Muse',defaultPath:path.join(app.getPath('downloads'),path.basename(item.getFilename()))}));}
-  function guard(event,url){try{httpsURL(url);if(!url.startsWith('https://'))throw Error();}catch{event.preventDefault();state('Sólo se admiten páginas HTTPS.');}}
-  contents.on('will-navigate',guard);contents.on('will-redirect',guard);
-  contents.setWindowOpenHandler(({url})=>{try{contents.loadURL(httpsURL(url)).catch(e=>state(e.message));}catch(e){state(e.message);}return {action:'deny'};});
-  contents.on('will-attach-webview',event=>event.preventDefault());
-  contents.on('did-navigate',()=>state());contents.on('did-navigate-in-page',()=>state());contents.on('page-title-updated',()=>state());
-  contents.on('did-fail-load',(e,code,description)=>{if(code!==-3)state('No se pudo abrir la página: '+description);});
-  window.webContents.on('will-navigate',event=>event.preventDefault());window.webContents.setWindowOpenHandler(()=>({action:'deny'}));
-  window.on('closed',()=>{if(!contents.isDestroyed())contents.close();window=null;view=null;});
-  window.loadFile(path.join(__dirname,'browser.html')).catch(()=>{});
-  return window;
-}
-module.exports={openBrowser,httpsURL};
+function browserState(error=''){if(!window||window.isDestroyed()||!view||view.webContents.isDestroyed())return {open:false,url:'',title:'',back:false,forward:false,error:error||'Bee-Muse Search está cerrado.'};const contents=view.webContents;return {open:true,url:contents.getURL()==='about:blank'?'':contents.getURL(),title:contents.getTitle().slice(0,200),back:contents.navigationHistory.canGoBack(),forward:contents.navigationHistory.canGoForward(),loading:contents.isLoading(),error};}
+function sendState(error=''){if(window&&!window.isDestroyed())window.webContents.send('bee-browser-state',browserState(error));}
+function waitForNavigation(contents,action,timeout=15000){return new Promise((resolve,reject)=>{let timer;const cleanup=()=>{clearTimeout(timer);contents.removeListener('did-stop-loading',done);contents.removeListener('did-fail-load',failed);};const done=()=>{cleanup();resolve();};const failed=(event,code,description)=>{if(code!==-3){cleanup();reject(Error('No se pudo abrir la página: '+description));}};contents.once('did-stop-loading',done);contents.on('did-fail-load',failed);timer=setTimeout(()=>{cleanup();reject(Error('La navegación superó el tiempo límite.'));},timeout);try{action();}catch(error){cleanup();reject(error);}});}
+async function perform(action,value,{show=true}={}){if(action==='state')return browserState();if(!window||window.isDestroyed())openBrowser(undefined,{show});const contents=view.webContents;if(action==='open')await waitForNavigation(contents,()=>contents.loadURL(httpsURL(value)));else if(action==='search')await waitForNavigation(contents,()=>contents.loadURL(searchURL(value)));else if(action==='go')await waitForNavigation(contents,()=>contents.loadURL(inputURL(value)));else if(action==='back'){if(contents.navigationHistory.canGoBack())await waitForNavigation(contents,()=>contents.navigationHistory.goBack());}else if(action==='forward'){if(contents.navigationHistory.canGoForward())await waitForNavigation(contents,()=>contents.navigationHistory.goForward());}else if(action==='reload')await waitForNavigation(contents,()=>contents.reload());else throw Error('Acción no admitida.');sendState();return browserState();}
+ipcMain.handle('bee-browser-action',async(event,action,value)=>{if(!trusted(event))throw Error('Solicitud no permitida.');try{return await perform(action,value);}catch(error){sendState(error.message);return {...browserState(error.message),ok:false};}});
+ipcMain.handle('bee-browser-tool',(event,tool)=>{if(!trusted(event)||!['files','muse','pointer','continuity'].includes(tool))throw Error('Herramienta no permitida.');toolHandler(tool);return true;});
+function configureBrowser({openTool}={}){if(typeof openTool==='function')toolHandler=openTool;}
+function localToolRoute(tool){const routes={files:'/',muse:'/muse',pointer:'/apuntadora',continuity:'/chingaquedito'};if(!Object.hasOwn(routes,tool))throw Error('Herramienta no permitida.');return routes[tool];}
+function openBrowser(parent,{show=true}={}){if(window&&!window.isDestroyed()){if(show){window.show();window.focus();}return window;}window=new BrowserWindow({parent,show,title:'Bee-Muse Search',width:1150,height:800,minWidth:640,minHeight:400,backgroundColor:'#15121d',webPreferences:{preload:path.join(__dirname,'browser-preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true}});view=new WebContentsView({webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-browser'}});window.contentView.addChildView(view);const resize=()=>{if(!window||window.isDestroyed())return;const [width,height]=window.getContentSize();view.setBounds({x:0,y:142,width,height:Math.max(0,height-142)});};window.on('resize',resize);resize();const contents=view.webContents,session=contents.session;session.setPermissionRequestHandler((webContents,permission,done)=>done(false));session.setPermissionCheckHandler(()=>false);if(!session.beeDownloadConfigured){session.beeDownloadConfigured=true;session.on('will-download',(event,item)=>item.setSaveDialogOptions({title:'Guardar descarga de Bee-Muse',defaultPath:path.join(app.getPath('downloads'),path.basename(item.getFilename()))}));}function guard(event,url){try{httpsURL(url);if(!url.startsWith('https://'))throw Error();}catch{event.preventDefault();sendState('Sólo se admiten páginas HTTPS.');}}contents.on('will-navigate',guard);contents.on('will-redirect',guard);contents.setWindowOpenHandler(({url})=>{try{contents.loadURL(httpsURL(url)).catch(error=>sendState(error.message));}catch(error){sendState(error.message);}return {action:'deny'};});contents.on('will-attach-webview',event=>event.preventDefault());contents.on('did-navigate',()=>sendState());contents.on('did-navigate-in-page',()=>sendState());contents.on('page-title-updated',()=>sendState());contents.on('did-fail-load',(event,code,description)=>{if(code!==-3)sendState('No se pudo abrir la página: '+description);});window.webContents.on('will-navigate',event=>event.preventDefault());window.webContents.setWindowOpenHandler(()=>({action:'deny'}));window.on('closed',()=>{if(!contents.isDestroyed())contents.close();window=null;view=null;});window.loadFile(path.join(__dirname,'browser.html')).catch(()=>{});return window;}
+function createBrowserBroker(){return new Promise((resolve,reject)=>{const token=crypto.randomBytes(32).toString('hex');const server=net.createServer(socket=>{socket.setEncoding('utf8');socket.setTimeout(5000);let data='';const reply=payload=>{if(!socket.destroyed)socket.end(JSON.stringify(payload)+'\n');};socket.on('data',chunk=>{data+=chunk;if(data.length>16384){reply({ok:false,error:'Solicitud demasiado grande.'});return;}if(!data.includes('\n'))return;let request;try{request=JSON.parse(data.slice(0,data.indexOf('\n')));}catch{return reply({ok:false,error:'Solicitud inválida.'});}if(!request||request.token!==token||typeof request.id!=='string'||!['open','search','back','forward','reload','state'].includes(request.action))return reply({id:request?.id,ok:false,error:'Solicitud no autorizada.'});perform(request.action,request.value).then(result=>reply({id:request.id,ok:true,result})).catch(error=>reply({id:request.id,ok:false,error:error.message}));});socket.on('timeout',()=>reply({ok:false,error:'Solicitud expirada.'}));socket.on('error',()=>{});});server.once('error',reject);server.listen(0,'127.0.0.1',()=>{const address=server.address();resolve({endpoint:'127.0.0.1:'+address.port,token,close:()=>server.close()});});});}
+module.exports={openBrowser,configureBrowser,createBrowserBroker,localToolRoute,httpsURL,searchURL,inputURL};
