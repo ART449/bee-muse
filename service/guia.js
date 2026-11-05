@@ -19,6 +19,7 @@ document.addEventListener('mousemove',e=>{ultimo={x:e.clientX,y:e.clientY};if(ac
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&activa){e.preventDefault();detener('esc');}});
 function el(tag,clase,texto){const n=document.createElement(tag);if(clase)n.className=clase;if(texto!=null)n.textContent=texto;return n;}
 function boton(texto,clase,fn){const b=el('button','guia-btn'+(clase?' '+clase:''),texto);b.type='button';b.addEventListener('click',fn);return b;}
+const LECTURA_MS=2500;let mostradoEn=0;
 function aviso(texto,ms){const a=el('div','guia-aviso',texto);a.setAttribute('role','status');document.body.appendChild(a);setTimeout(()=>a.remove(),ms||1800);}
 function buscar(paso){let n=document.querySelector('[data-tour="'+paso.blanco+'"]');if(!n&&paso.respaldo)n=paso.respaldo();return n&&n.offsetParent!==null?n:null;}
 function pedirPermiso(){
@@ -53,11 +54,11 @@ function paso(i){
   const p=PASOS[i],n=buscar(p);blancoActual=n;n.classList.add('guia-blanco');
   tarjeta.replaceChildren();tarjeta.appendChild(el('div','guia-paso','Paso '+(i+1)+' de '+PASOS.length));tarjeta.appendChild(el('p',null,p.texto));
   const fila=el('div','guia-botones');fila.appendChild(boton('Saltar guía',null,()=>detener('saltar')));fila.appendChild(boton('Siguiente','guia-primario',()=>{hechos++;paso(i+1);}));tarjeta.appendChild(fila);
-  escuchaClic=()=>{hechos++;paso(i+1);};n.addEventListener('click',escuchaClic,{once:true});
+  mostradoEn=Date.now();escuchaClic=()=>{if(Date.now()-mostradoEn<LECTURA_MS)return;hechos++;paso(i+1);};n.addEventListener('click',escuchaClic);
   n.scrollIntoView({block:'center',behavior:reducido()?'auto':'smooth'});
   estado='viajando';origenViaje=ultimo?{x:ultimo.x,y:ultimo.y}:null;
   clearTimeout(temporizador);
-  setTimeout(()=>{if(!activa||blancoActual!==n)return;colocar(n);temporizador=setTimeout(()=>{if(activa&&blancoActual===n){estado='esperando';tarjeta.querySelector('.guia-primario').focus();}},reducido()?0:750);},reducido()?0:120);
+  setTimeout(()=>{if(!activa||blancoActual!==n)return;colocar(n);temporizador=setTimeout(()=>{if(activa&&blancoActual===n){estado='esperando';tarjeta.querySelector('.guia-primario').focus();}},reducido()?0:1600);},reducido()?0:350);
 }
 function colocar(n){
   const r=n.getBoundingClientRect();const x=r.left+r.width*0.5,y=r.top+r.height*0.6;
@@ -73,7 +74,7 @@ function terminar(){
   tarjeta.replaceChildren();tarjeta.appendChild(el('div','guia-paso','Listo'));tarjeta.appendChild(el('p',null,hechos>=PASOS.length?'Ya hiciste las tres acciones. Puedes repetir la guía desde el menú Ayuda cuando quieras.':hechos>0?'Recorrido terminado: esta pantalla tenía '+hechos+' de '+PASOS.length+' pasos. Puedes repetir la guía desde el menú Ayuda.':'Esta pantalla aún no tiene los pasos de la guía. Ábrela desde Muse e inténtalo de nuevo.'));
   const fila=el('div','guia-botones');fila.appendChild(boton('Cerrar','guia-primario',()=>detener('fin')));tarjeta.appendChild(fila);
   const t=tarjeta.getBoundingClientRect();tarjeta.style.left=Math.max(16,(innerWidth-t.width)/2)+'px';tarjeta.style.top=Math.max(16,innerHeight-t.height-32)+'px';
-  tarjeta.querySelector('.guia-primario').focus();clearTimeout(temporizador);temporizador=setTimeout(()=>detener('fin'),8000);
+  tarjeta.querySelector('.guia-primario').focus();clearTimeout(temporizador);temporizador=setTimeout(()=>detener('fin'),15000);
 }
 function detener(motivo){
   if(!activa)return;activa=false;estado='';clearTimeout(temporizador);limpiarBlanco();
