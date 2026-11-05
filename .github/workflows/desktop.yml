@@ -2,7 +2,7 @@ name: Build and test Bee-Muse
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: ['main', 'feat/ports-**']
     paths:
       - 'service/**'
       - 'desktop/**'
@@ -14,32 +14,70 @@ permissions:
   contents: read
 jobs:
   desktop:
+    name: ${{ matrix.name }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+        include:
+          - name: linux-x64
+            runner: ubuntu-latest
+            python: '3.14'
+          - name: linux-arm64
+            runner: ubuntu-24.04-arm
+            python: '3.14'
+          - name: windows-x64
+            runner: windows-latest
+            python: '3.14'
+          - name: windows-arm64
+            runner: windows-11-arm
+            python: '3.14'
+          - name: macos-arm64
+            runner: macos-latest
+            python: '3.14'
+          - name: macos-x64
+            runner: macos-15-intel
+            python: '3.14'
+    runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
-      - uses: actions/setup-node@v4
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '22'
           cache: npm
           cache-dependency-path: desktop/package-lock.json
-      - run: python -m pip install -r requirements-build.txt -r requirements-mcp.txt -r requirements-voice.txt
+      - name: Install Python dependencies
+        if: matrix.name != 'windows-arm64'
+        run: python -m pip install -r requirements-build.txt -r requirements-mcp.txt -r requirements-voice.txt
+      - name: Install Python dependencies (windows-arm64, sin cryptography)
+        if: matrix.name == 'windows-arm64'
+        run: |
+          python -m pip install -r requirements-build.txt -r requirements-voice.txt -r requirements-mcp-noncrypto.txt
+          python -m pip install --no-deps mcp==1.30.0
+          python -c "import mcp.server.fastmcp; print('mcp sin cryptography: OK')"
       - run: python -m unittest discover -s tests -v
       - run: python scripts/build_desktop.py
+      - name: Smoke test packaged backend
+        run: python scripts/smoke_backend.py
       - run: npm ci
         working-directory: desktop
-      - run: npm run package
+      - name: Empaquetar Electron (reintenta si la descarga de Electron se corta)
+        shell: bash
         working-directory: desktop
+        run: |
+          for i in 1 2 3; do
+            npm run package && exit 0
+            echo "::warning::npm run package falló (intento $i/3), reintentando en 20 s"
+            rm -rf ~/.cache/electron ~/Library/Caches/electron "$LOCALAPPDATA/electron/Cache" 2>/dev/null || true
+            sleep 20
+          done
+          exit 1
       - run: python scripts/archive_desktop.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
-          name: Bee-Muse-${{ runner.os }}-${{ runner.arch }}
+          name: Bee-Muse-${{ matrix.name }}
           path: desktop/release/
           compression-level: 0
           if-no-files-found: error

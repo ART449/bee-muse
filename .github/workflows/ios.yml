@@ -1,0 +1,29 @@
+name: Build Bee-Muse iOS
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feat/ports-**', 'main']
+    paths: ['ios/**', '.github/workflows/ios.yml']
+permissions:
+  contents: read
+jobs:
+  simulator:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: brew install xcodegen
+      - run: xcodegen generate --spec ios/project.yml
+      - run: >
+          xcodebuild -project ios/Bee-Muse.xcodeproj -scheme Bee-Muse
+          -sdk iphonesimulator -configuration Debug
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath ios/build
+          CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
+      - run: |
+          cd ios/build/Build/Products/Debug-iphonesimulator
+          zip -r "$GITHUB_WORKSPACE/Bee-Muse-iOS-simulator.zip" Bee-Muse.app
+      - uses: actions/upload-artifact@v6
+        with:
+          name: Bee-Muse-iOS-simulator
+          path: Bee-Muse-iOS-simulator.zip
+          if-no-files-found: error
