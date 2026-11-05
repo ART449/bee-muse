@@ -22,6 +22,7 @@ class McpStdioTests(unittest.TestCase):
                         listed=await session.list_tools()
                         names={tool.name for tool in listed.tools}
                         self.assertIn('search_html',names);self.assertIn('inbeebox_messages',names)
+                        self.assertTrue({'browser_open','browser_search','browser_back','browser_forward','browser_reload','browser_state'} <= names)
                         result=await session.call_tool('search_html',{'query':'Demo MCP'})
                         self.assertFalse(result.isError)
                         data=result.structuredContent or json.loads(result.content[0].text)
