@@ -8,7 +8,7 @@
 .guia-btn{font:inherit;min-height:44px;padding:10px 16px;border-radius:10px;border:1px solid var(--line,#3c344b);background:var(--paper,#18171f);color:var(--ink,#f7f3ff);cursor:pointer}
 .guia-btn.guia-primario{background:var(--honey,#ffd700);color:#1a1400;border-color:transparent;font-weight:700}
 .guia-btn:focus-visible{outline:3px solid var(--focus,#ffd700);outline-offset:3px}
-.guia-cursor{position:fixed;left:0;top:0;z-index:66;width:26px;height:26px;margin:-13px 0 0 -13px;pointer-events:none;transition:transform .7s cubic-bezier(.25,.8,.3,1)}
+.guia-cursor{position:fixed;left:0;top:0;z-index:66;width:26px;height:26px;margin:-13px 0 0 -13px;pointer-events:none;transition:transform 1.4s cubic-bezier(.25,.8,.3,1)}
 .guia-cursor::before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--honey,#ffd700);box-shadow:0 0 0 2px #1a1400,0 0 14px 4px rgba(255,215,0,.55)}
 .guia-cursor::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid rgba(255,215,0,.7);animation:guia-halo 1.6s ease-out infinite}
 @keyframes guia-halo{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.6);opacity:0}}

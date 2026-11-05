@@ -28,7 +28,7 @@ La primera apertura crea una biblioteca vacía en los datos de la aplicación. P
 
 Conversación con historial, ejecución de herramientas y terminal, nueve animaciones de CyberBee/OctoHype asociadas a estados, proveedor Facebook preparado y controles de voz. Consulta [VALIDATION.md](VALIDATION.md) para distinguir lo probado de lo pendiente; especialmente dictado Meta, OAuth real y Android.
 
-El escritorio 0.5.0 incorpora navegador Chromium mediante Electron: se abre desde el menú Navegador o el botón en Muse. Tiene dirección HTTPS, atrás, adelante, recarga y guardado de descargas. El contenido remoto está separado de las herramientas locales; no dispone de Node ni del puente de archivos, terminal o identidad. La navegación para agentes mediante MCP todavía no está conectada.
+El escritorio 0.5.0 incorpora **Bee-Muse Search**, navegador Chromium mediante Electron: se abre desde el menú Navegador o el botón en Muse. Una sola barra acepta una dirección HTTPS o una búsqueda (proveedor configurable con `BEE_SEARCH_URL`), con atrás, adelante, recarga, guardado de descargas y botones que vuelven a Mis archivos, Muse, Apuntadora y Chingaquedito. El contenido remoto está separado de las herramientas locales; no dispone de Node ni del puente de archivos, terminal o identidad. Muse puede navegar esa ventana visible mediante las herramientas MCP `browser_open`, `browser_search`, `browser_back`, `browser_forward`, `browser_reload` y `browser_state`, a través de un puente loopback con token por sesión; no lee el contenido de la página ni interactúa con ella.
 
 ## Compilar escritorio
 

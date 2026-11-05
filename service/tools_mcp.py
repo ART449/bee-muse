@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import sqlite3
+import socket
 import sys
 import time
 from urllib.parse import quote, urlencode, urlsplit
@@ -20,6 +21,32 @@ import chingaquedito
 PRIVATE_NAMES = {'.env','auth.json','credentials.json','token.json','id_rsa','id_ed25519'}
 PRIVATE_DIRS = {'.git','.credentials','.ssh','.aws','.azure'}
 TEXT_TYPES = {'.html','.htm','.xhtml','.txt','.md','.py','.js','.ts','.tsx','.jsx','.css','.go','.rs','.java','.kt','.csv','.json'}
+
+
+def browser_action(action, value=None):
+    endpoint=os.environ.get('BEE_BROWSER_ENDPOINT')
+    token=os.environ.get('BEE_BROWSER_TOKEN')
+    if not endpoint or not token:
+        raise ValueError('Bee-Muse Search no está disponible en esta sesión.')
+    try:
+        host,port=endpoint.rsplit(':',1)
+        if host!='127.0.0.1': raise ValueError
+        request={'id':os.urandom(12).hex(),'token':token,'action':action}
+        if value is not None: request['value']=value
+        with socket.create_connection((host,int(port)),timeout=3) as client:
+            client.settimeout(18)
+            client.sendall((json.dumps(request,separators=(',',':'))+'\n').encode())
+            raw=b''
+            while b'\n' not in raw and len(raw)<=65536:
+                chunk=client.recv(8192)
+                if not chunk: break
+                raw+=chunk
+        response=json.loads(raw.split(b'\n',1)[0])
+    except (OSError,ValueError,IndexError,json.JSONDecodeError):
+        raise ValueError('Bee-Muse Search no respondió dentro del tiempo permitido.') from None
+    if not isinstance(response,dict) or response.get('id')!=request['id'] or not response.get('ok'):
+        raise ValueError(response.get('error','Bee-Muse Search rechazó la solicitud.') if isinstance(response,dict) else 'Respuesta inválida de Bee-Muse Search.')
+    return response['result']
 
 
 class LibraryTools:
@@ -265,6 +292,36 @@ def create_server(library):
         if not re.fullmatch(r'[a-zA-Z0-9_-]{1,60}',channel) or not 1<=limit<=100:
             raise ValueError('Canal o límite inválido.')
         return inbeebox_get('/channels/'+quote(channel,safe='')+'/messages?'+urlencode({'limit':limit}))
+
+    @mcp.tool()
+    def browser_open(url: str) -> dict:
+        """Open an explicit HTTPS URL in the visible Bee-Muse Search window. Reject unsafe schemes and credentials."""
+        return browser_action('open',url)
+
+    @mcp.tool()
+    def browser_search(query: str) -> dict:
+        """Search in the visible Bee-Muse Search window and return only verified navigation state."""
+        return browser_action('search',query)
+
+    @mcp.tool()
+    def browser_back() -> dict:
+        """Navigate back in the same visible Bee-Muse Search window when history permits."""
+        return browser_action('back')
+
+    @mcp.tool()
+    def browser_forward() -> dict:
+        """Navigate forward in the same visible Bee-Muse Search window when history permits."""
+        return browser_action('forward')
+
+    @mcp.tool()
+    def browser_reload() -> dict:
+        """Reload the current page in the same visible Bee-Muse Search window."""
+        return browser_action('reload')
+
+    @mcp.tool()
+    def browser_state() -> dict:
+        """Read bounded navigation state; does not read page content or interact with it."""
+        return browser_action('state')
 
     return mcp
 
