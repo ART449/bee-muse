@@ -7,10 +7,25 @@ import folder_library
 import muse_bridge
 import html_assistant
 
-KINDS={'photos':{'.jpg','.jpeg','.png','.webp','.gif','.heic','.avif','.bmp'},'documents':{'.pdf','.doc','.docx','.odt','.txt','.md','.rtf','.ppt','.pptx','.xls','.xlsx','.csv'},'media':{'.mp3','.wav','.m4a','.mp4','.mov','.mkv','.webm'},'code':{'.html','.htm','.jsx','.tsx','.js','.ts','.py','.rs','.go','.java','.css','.json'}}
+KINDS={'photos':{'.jpg','.jpeg','.png','.webp','.gif','.heic','.avif','.bmp','.svg'},
+       'documents':{'.pdf','.doc','.docx','.odt','.txt','.md','.rtf','.ppt','.pptx','.xls','.xlsx','.csv'},
+       'audio':{'.mp3','.wav','.m4a','.flac','.ogg','.aac','.opus'},
+       'video':{'.mp4','.mov','.mkv','.webm','.avi','.m4v'},
+       'web':{'.html','.htm'},
+       'code':{'.jsx','.tsx','.js','.ts','.py','.rs','.go','.java','.css','.json','.yaml','.yml','.toml','.sh','.ps1','.cjs','.mjs'},
+       'models3d':{'.stl','.obj','.3mf','.fbx','.gltf','.glb','.step','.stp','.ply','.blend'},
+       'roms':{'.nsp','.xci','.nes','.sfc','.smc','.gba','.gb','.gbc','.n64','.z64','.v64','.nds','.3ds','.cia','.iso','.cso','.chd','.pbp','.rom','.pak','.wad'},
+       'archives':{'.zip','.rar','.7z','.tar','.gz','.tgz','.xz','.bz2','.zst'}}
+# Public labels and icons for every kind, consumed by the web UI (/api/files/kinds).
+KIND_INFO={'photos':('Fotos e imágenes','🖼️'),'documents':('Tareas y documentos','📄'),'audio':('Audio','🎵'),'video':('Video','🎬'),
+           'web':('Páginas HTML','🌐'),'code':('Código y proyectos','💻'),'models3d':('Modelos 3D e impresión','🧊'),
+           'roms':('Juegos y ROMs para emular','🎮'),'archives':('Comprimidos','🗜️'),'other':('Otros archivos','📦')}
 def kind(path):
     suffix=Path(path).suffix.lower()
     return next((k for k,extensions in KINDS.items() if suffix in extensions),'other')
+def kinds_catalog():
+    """Serializable description of the categories for the interface."""
+    return {'kinds':[{'id':k,'label':KIND_INFO[k][0],'icon':KIND_INFO[k][1],'extensions':sorted(KINDS.get(k,()))} for k in [*KINDS,'other']]}
 def inventory(base,query='',category='all',limit=120,oldest=False):
     if not isinstance(query,str) or len(query)>1800 or category not in {'all','other',*KINDS}:
         raise ValueError('Consulta o tipo de archivo inválido.')
