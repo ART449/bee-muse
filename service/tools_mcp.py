@@ -14,8 +14,6 @@ import time
 from urllib.parse import quote, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
-from mcp.server.fastmcp import FastMCP
-
 import colmena_contexto
 
 PRIVATE_NAMES = {'.env','auth.json','credentials.json','token.json','id_rsa','id_ed25519'}
@@ -200,6 +198,7 @@ def inbeebox_get(path):
 
 
 def create_server(library):
+    from mcp.server.fastmcp import FastMCP
     tools = LibraryTools(Path(library))
     mcp = FastMCP('Bee-Muse · IArtLabs')
 

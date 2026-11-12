@@ -17,6 +17,27 @@ Instala Muse Code e inicia sesión con tu propia cuenta para conversar, ejecutar
 
 La primera apertura crea una biblioteca vacía en los datos de la aplicación. Puedes indexar tus carpetas desde la interfaz. En un equipo con una biblioteca configurada, se reutiliza su ubicación y se conservan sus datos.
 
+## Cerebro
+
+Muse Code es el cerebro por defecto. Bee-Muse también funciona con cualquier servicio que hable el protocolo de chat de OpenAI; se elige con variables de entorno antes de iniciar:
+
+| Variable | Uso |
+|---|---|
+| `BEE_BRAIN` | `muse` (por defecto), `ollama` u `openai` (cualquier servicio compatible) |
+| `BEE_BRAIN_MODEL` | Modelo a usar. Obligatorio si el cerebro no es Muse |
+| `BEE_BRAIN_URL` | Base del servicio. Por defecto `http://127.0.0.1:11434/v1` (ollama) o `https://api.openai.com/v1` (openai) |
+| `BEE_BRAIN_API_KEY` / `BEE_BRAIN_API_KEY_FILE` | Llave, directa o en un archivo. No se guarda ni se muestra |
+| `BEE_BRAIN_WORKSPACE_WRITE` | `1` permite al cerebro escribir archivos de texto dentro de la carpeta de trabajo. Apagado por defecto |
+| `BEE_BRAIN_ALLOW_HTTP` | `1` acepta HTTP hacia una red privada de confianza. Sin esto, un servicio remoto debe usar HTTPS |
+
+```sh
+BEE_BRAIN=ollama BEE_BRAIN_MODEL=qwen2.5-coder:7b python run.py --open
+```
+
+Con un cerebro compatible las herramientas de la biblioteca (buscar, leer y señalar archivos indexados) se ejecutan dentro de Bee-Muse, sin MCP. En la carpeta de trabajo el cerebro puede listar y leer; no ejecuta comandos. La calidad depende del modelo: uno local pequeño conversa y usa herramientas, pero razona menos que Muse. La transcripción de voz sigue usando Muse Code.
+
+Probado en Windows el 12 de noviembre de 2026 con Muse (`muse-wonder-1.0`) y con Ollama local (`qwen2.5-coder:7b`): búsqueda, lectura y señalado de un archivo indexado a través del servicio HTTP. No se ha probado con servicios en la nube ni en otros sistemas.
+
 ## Estado
 
 - Windows: código recuperado de la aplicación existente. La nueva conexión con Muse creó un archivo real en una carpeta temporal y devolvió correctamente un cálculo solicitado.

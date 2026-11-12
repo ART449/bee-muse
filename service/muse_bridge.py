@@ -8,6 +8,7 @@ import time
 import shutil
 import platform
 import datetime as dt
+import brains
 
 MODEL='muse-wonder-1.0'
 LAST_SUCCESS=None
@@ -17,6 +18,18 @@ def contributor_mode():
     """Per-run Muse contributor mode. Default off: user content is not shared for product improvement.
     Set BEE_MUSE_CONTRIBUTOR_MODE=on (discounted tokens) only for synthetic/demo data."""
     return 'on' if os.environ.get('BEE_MUSE_CONTRIBUTOR_MODE','').strip().lower() in ('on','1','true','yes') else 'off'
+
+def compatible():
+    """True when BEE_BRAIN selects a non-Muse brain (see brains.py). An invalid value counts, so the error surfaces."""
+    try:return brains.kind()!='muse'
+    except ValueError:return True
+
+def active_model():
+    try:return brains.config()['model'] if compatible() else MODEL
+    except ValueError:return None
+
+def provider():
+    return brains.label() if compatible() else brains.MUSE_LABEL
 
 def binary():
     configured=os.environ.get('BEE_MUSE_EXECUTABLE','')
@@ -34,6 +47,7 @@ def binary():
     return None
 
 def status():
+    if compatible():return brains.status()|{'hostPlatform':platform.system(),'account':LAST_ACCOUNT}
     installed=binary() is not None
     return {'available':installed,'installed':installed,'verifiedThisProcess':LAST_SUCCESS is not None,
             'lastSuccess':LAST_SUCCESS,'models':[{'name':MODEL,'bytes':None,'quantization':None}] if installed else [],
@@ -43,6 +57,10 @@ def status():
 
 def account_status():
     global LAST_ACCOUNT
+    if compatible():
+        state=brains.status()
+        LAST_ACCOUNT={'connected':state['available'],'checkedAt':dt.datetime.now(dt.timezone.utc).isoformat(),'note':state['provider']+': '+state['note']}
+        return LAST_ACCOUNT
     exe=binary()
     if not exe:return {'connected':False,'note':'Muse Code no está instalado en este servidor. El cliente Android no necesita instalarlo: debe conectarse a un servidor seguro.'}
     try:
@@ -58,15 +76,16 @@ def probe(base):
     schema={'type':'object','properties':{'code':{'type':'string'},'message':{'type':'string'}},'required':['code','message'],'additionalProperties':False}
     reply=chat([{'role':'user','content':'Prueba pública de Bee-Muse para el hackatón. Devuelve code exactamente MUSE_DEMO_OK y message en español: una frase corta sobre ayudar a encontrar y señalar un HTML. No tienes herramientas y no se proporciona ningún archivo privado.'}],schema)
     answer=json.loads(reply['message']['content'])
-    if answer.get('code')!='MUSE_DEMO_OK' or not isinstance(answer.get('message'),str):raise ValueError('Muse respondió, pero la prueba no cumplió el resultado esperado. No se marca como validada.')
-    report={'ok':True,'provider':'Muse Code · Meta','model':MODEL,'checkedAt':dt.datetime.now(dt.timezone.utc).isoformat(),'seconds':round(time.monotonic()-start,2),'message':answer['message'][:300],'metrics':reply.get('metrics',{}),'scope':'Prueba con una instrucción pública, sin archivos personales. No acredita una prueba en otros sistemas operativos.'}
+    if answer.get('code')!='MUSE_DEMO_OK' or not isinstance(answer.get('message'),str):raise ValueError('El cerebro respondió, pero la prueba no cumplió el resultado esperado. No se marca como validada.')
+    report={'ok':True,'provider':provider(),'model':active_model(),'checkedAt':dt.datetime.now(dt.timezone.utc).isoformat(),'seconds':round(time.monotonic()-start,2),'message':answer['message'][:300],'metrics':reply.get('metrics',{}),'scope':'Prueba con una instrucción pública, sin archivos personales. No acredita una prueba en otros sistemas operativos.'}
     target=Path(base)/'muse-evidence.json';temp=target.with_suffix('.tmp');temp.write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8');temp.replace(target)
     return report
 
 def chat(messages,schema,timeout=150):
     global LAST_SUCCESS
+    if compatible():return brains.chat(messages,schema,timeout)
     exe=binary()
-    if not exe:raise ValueError('Instala Muse Code e inicia sesión para usar Bee-Muse.')
+    if not exe:raise ValueError('Instala Muse Code e inicia sesión para usar Bee-Muse, o configura otro cerebro con BEE_BRAIN.')
     with tempfile.TemporaryDirectory(prefix='bee-muse-') as folder:
         root=Path(folder)
         prompt=root/'prompt.txt'; shape=root/'schema.json'
