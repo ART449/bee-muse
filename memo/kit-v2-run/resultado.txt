@@ -1,0 +1,25 @@
+﻿BEE-MUSE - VALIDACION LOCAL WINDOWS v2
+Timestamp: 2026-11-02T23:36:51.4233425-06:00
+EXE: I:\Bee-Muse\2026-11-02\release-0.5.0\Windows\Bee-Muse-win32-x64\Bee-Muse.exe
+SizeBytes: 249798656
+SHA256: 3335e3c3ab134e385f4392eef8b55d323dfc889fe1596eb889ef9fd039c591d1
+ProductName: Bee-Muse
+ProductVersion: 0.5.0
+FileVersion: 0.5.0
+Authenticode: NotSigned
+Resource [bundle-option] resources\app.asar: PRESENT
+Resource [bundle-option] resources\app\package.json: ABSENT
+Resource [informational] resources.pak: PRESENT
+Resource [informational] icudtl.dat: PRESENT
+Resource [informational] locales: PRESENT
+Resource [informational] libEGL.dll: ABSENT
+Resource [informational] libGLESv2.dll: ABSENT
+BundleKind: ASAR
+SmokeTest: lanzamiento local del EXE autorizado por quien ejecuta el script.
+InitialPid: 22536
+ProcessesRunningFromEXE: 4
+VisibleWindows: 1
+Window: PID=22536 Title=Bee-Muse · IArtLabs · 0.5.0
+SMOKE OK: se detecto una ventana; aun falta verificar los flujos funcionales.
+El script NO cierra los procesos: inspeccionar manualmente la interfaz.
+VERDICT: SMOKE_WINDOW_DETECTED
