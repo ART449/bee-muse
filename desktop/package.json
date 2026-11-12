@@ -4,6 +4,7 @@
   "version": "0.5.0",
   "description": "Herramientas para IA, conversaci\u00f3n con Muse y biblioteca local \u00b7 IArtLabs",
   "author": "IART Labs",
+  "license": "MIT",
   "private": true,
   "main": "main.cjs",
   "scripts": {
