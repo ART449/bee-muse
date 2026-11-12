@@ -8,7 +8,7 @@ OLLAMA='http://127.0.0.1:11434'
 LOCK=threading.Lock()
 SCHEMA={'type':'object','properties':{'resumen':{'type':'string'},'tipo':{'type':'string','enum':['portada','catálogo','formulario','dashboard','documento','otro','indeterminado']},'etiquetas':{'type':'array','items':{'type':'string'}},'evidencias':{'type':'array','items':{'type':'string'}}},'required':['resumen','tipo','etiquetas','evidencias'],'additionalProperties':False}
 def call(route,payload=None,timeout=5):
-    if route=='/api/chat' and payload and payload.get('model')==muse_bridge.MODEL:
+    if route=='/api/chat' and payload and payload.get('model')==muse_bridge.active_model():
         return muse_bridge.chat(payload['messages'],payload['format'],max(timeout,150))
     data=None if payload is None else json.dumps(payload).encode()
     req=urllib.request.Request(OLLAMA+route,data=data,headers={'Content-Type':'application/json'})
@@ -35,7 +35,7 @@ def analyze(record,model,base):
     if not LOCK.acquire(blocking=False):raise ValueError('El asistente está analizando otro archivo. Intenta al terminar.')
     try:
         names={m['name'] for m in status()['models']}
-        if model not in names:raise ValueError('Muse Code no está disponible en este equipo.')
+        if model not in names:raise ValueError('El cerebro configurado no está disponible en este equipo.')
         path=Path(record['path']);st=path.stat()
         if getattr(st,'st_file_attributes',0)&(0x1000|0x40000|0x400000):raise ValueError('El archivo está en nube sin descargar.')
         if st.st_size>2*1024*1024:raise ValueError('El análisis admite HTML de hasta 2 MB.')
@@ -62,7 +62,7 @@ def analyze(record,model,base):
             quotes=[excerpt[:200]] if excerpt else []
             summary={'resumen':'Texto encontrado: '+excerpt[:300] if excerpt else 'No se encontró texto visible suficiente.','tipo':'indeterminado','etiquetas':[]}
         if not isinstance(summary.get('resumen'),str) or not isinstance(summary.get('tipo'),str) or not isinstance(summary.get('etiquetas'),list):raise ValueError('El modelo devolvió un resultado incompleto.')
-        result={'provider':'Muse Code · Meta','model':model,'sha256':digest,'seconds':round(time.monotonic()-start,1),'cached':False,'resumen':summary['resumen'][:1600],'tipo':summary['tipo'][:150],'etiquetas':[str(t)[:60] for t in summary['etiquetas'][:5]],'interpretacion_aceptada':accepted,'citas':quotes[:2],'evidencia':evidence,'limitacion':('La interpretación de IA no aportó evidencia válida. Se muestra una ficha extraída del documento. ' if not accepted else '')+'Análisis de texto y estructura. No ve una captura ni ejecuta la página. Es una sugerencia de IA, no una comprobación de funcionamiento.'}
+        result={'provider':muse_bridge.provider(),'model':model,'sha256':digest,'seconds':round(time.monotonic()-start,1),'cached':False,'resumen':summary['resumen'][:1600],'tipo':summary['tipo'][:150],'etiquetas':[str(t)[:60] for t in summary['etiquetas'][:5]],'interpretacion_aceptada':accepted,'citas':quotes[:2],'evidencia':evidence,'limitacion':('La interpretación de IA no aportó evidencia válida. Se muestra una ficha extraída del documento. ' if not accepted else '')+'Análisis de texto y estructura. No ve una captura ni ejecuta la página. Es una sugerencia de IA, no una comprobación de funcionamiento.'}
         target.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
         return result
     finally:LOCK.release()

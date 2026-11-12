@@ -41,7 +41,7 @@ def propose(catalog,message,history):
     messages.append({'role':'user','content':json.dumps({'solicitud':message,'candidatos':inventory,'total_piezas':len(groups),'alcance':'Solo estos candidatos están disponibles para la respuesta.'},ensure_ascii=False)})
     if not ai.LOCK.acquire(blocking=False):raise ValueError('La IA está atendiendo otro análisis. Intenta al terminar.')
     try:
-        result=ai.call('/api/chat',{'model':'muse-wonder-1.0','messages':messages,'format':schema,'stream':False},timeout=150)
+        result=ai.call('/api/chat',{'model':ai.muse_bridge.active_model(),'messages':messages,'format':schema,'stream':False},timeout=150)
         answer=json.loads(result['message']['content'])
     finally:ai.LOCK.release()
     allowed={r['id']:r for r in candidates}
@@ -57,7 +57,7 @@ def propose(catalog,message,history):
     message_text=answer.get('mensaje')
     if fallback:message_text=f'Encontré {len(ids)} coincidencias por nombre o título. La selección de la IA no devolvió referencias válidas; te muestro las coincidencias del catálogo.'
     if not isinstance(message_text,str) or not message_text.strip():message_text=f'Encontré {len(ids)} archivos entre los candidatos revisados.'
-    return {'message':message_text[:1800],'files':files,'proposal':{'name':name,'ids':ids,'tags':tags} if name and ids else None,'candidateCount':len(candidates),'provider':'Muse Code · Meta'}
+    return {'message':message_text[:1800],'files':files,'proposal':{'name':name,'ids':ids,'tags':tags} if name and ids else None,'candidateCount':len(candidates),'provider':ai.muse_bridge.provider()}
 
 def project_groups(catalog):
     groups={};seen=set()
