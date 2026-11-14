@@ -3,8 +3,8 @@ const {app,BrowserWindow,Menu,dialog,shell,ipcMain,clipboard}=require('electron'
 const fs=require('node:fs');
 const path=require('node:path');
 const {spawn,spawnSync}=require('node:child_process');
-const {openBrowser}=require('./browser.cjs');
-let mainWindow,backend,origin,ending=false;
+const {openBrowser,configureBrowser,createBrowserBroker,localToolRoute}=require('./browser.cjs');
+let mainWindow,backend,origin,ending=false,browserBroker;
 const storageKeys=new Set(['html-library-selection','html-library-stages','html-bee-history','muse-agent-history','bee-guia-vista']);
 ipcMain.on('bee-storage',(event,action,key,value)=>{
   if(!mainWindow||event.sender!==mainWindow.webContents||!event.senderFrame?.url.startsWith(origin+'/')||!storageKeys.has(key)){event.returnValue=null;return;}
@@ -92,7 +92,7 @@ app.on('web-contents-created',(event,contents)=>contextMenu(contents));
 function startBackend(folder){return new Promise((resolve,reject)=>{
   const exe=path.join(resources(),'backend',process.platform==='win32'?'bee-muse-service.exe':'bee-muse-service');
   const logs=path.join(app.getPath('userData'),'service.log');
-  backend=spawn(exe,['--port','0'],{cwd:folder,env:{...process.env,BEE_LIBRARY_DIR:folder,PYTHONUTF8:'1'},windowsHide:true,stdio:['ignore','pipe','pipe']});
+  backend=spawn(exe,['--port','0'],{cwd:folder,env:{...process.env,BEE_LIBRARY_DIR:folder,PYTHONUTF8:'1',BEE_BROWSER_ENDPOINT:browserBroker.endpoint,BEE_BROWSER_TOKEN:browserBroker.token},windowsHide:true,stdio:['ignore','pipe','pipe']});
   let buffer='',ready=false;
   const timer=setTimeout(()=>reject(Error('El servicio no respondió al iniciar. Revisa service.log en la carpeta de la aplicación.')),45000);
   backend.stdout.on('data',data=>{buffer+=data.toString();const match=buffer.match(/http:\/\/127\.0\.0\.1:(\d+)/);if(match&&!ready){ready=true;clearTimeout(timer);resolve('http://127.0.0.1:'+match[1]);}});
@@ -103,13 +103,15 @@ function startBackend(folder){return new Promise((resolve,reject)=>{
 if(locked)app.whenReady().then(async()=>{
   try{
     fs.mkdirSync(app.getPath('userData'),{recursive:true});
+    browserBroker=await createBrowserBroker();
     origin=await startBackend(library());
     mainWindow=new BrowserWindow({title:'Bee-Muse · IArtLabs · 0.5.0',width:1280,height:860,minWidth:680,minHeight:560,backgroundColor:'#0a0a0f',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-muse-desktop'}});
     mainWindow.on('page-title-updated',event=>event.preventDefault());
+    configureBrowser({openTool:tool=>{mainWindow.loadURL(origin+localToolRoute(tool));mainWindow.show();mainWindow.focus();}});
     safeWindow(mainWindow);menu();
     mainWindow.once('ready-to-show',()=>mainWindow.show());
     await mainWindow.loadURL(origin+'/muse');
   }catch(error){dialog.showErrorBox('No se pudo abrir Bee-Muse',error.message);app.quit();}
 });
 app.on('window-all-closed',()=>app.quit());
-app.on('before-quit',()=>{ending=true;if(backend&&!backend.killed){if(process.platform==='win32')spawnSync('taskkill.exe',['/PID',String(backend.pid),'/T','/F'],{windowsHide:true,timeout:8000});else backend.kill();}});
+app.on('before-quit',()=>{ending=true;browserBroker?.close();if(backend&&!backend.killed){if(process.platform==='win32')spawnSync('taskkill.exe',['/PID',String(backend.pid),'/T','/F'],{windowsHide:true,timeout:8000});else backend.kill();}});
