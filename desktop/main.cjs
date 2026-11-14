@@ -5,7 +5,7 @@ const path=require('node:path');
 const {spawn,spawnSync}=require('node:child_process');
 const {openBrowser}=require('./browser.cjs');
 let mainWindow,backend,origin,ending=false;
-const storageKeys=new Set(['html-library-selection','html-library-stages','html-bee-history','muse-agent-history']);
+const storageKeys=new Set(['html-library-selection','html-library-stages','html-bee-history','muse-agent-history','bee-guia-vista']);
 ipcMain.on('bee-storage',(event,action,key,value)=>{
   if(!mainWindow||event.sender!==mainWindow.webContents||!event.senderFrame?.url.startsWith(origin+'/')||!storageKeys.has(key)){event.returnValue=null;return;}
   const file=path.join(app.getPath('userData'),'library-state.json');
@@ -71,7 +71,7 @@ function menu(){
     {label:'Editar',submenu:[{role:'undo',label:'Deshacer'},{role:'redo',label:'Rehacer'},{type:'separator'},{role:'cut',label:'Cortar'},{role:'copy',label:'Copiar'},{role:'paste',label:'Pegar'},{role:'selectAll',label:'Seleccionar todo'}]},
     {label:'Navegador',submenu:[{label:'Abrir navegador Bee-Muse',click:()=>openBrowser(mainWindow)}]},
     {label:'Vista',submenu:[{role:'reload',label:'Recargar vista'},{role:'resetZoom',label:'Tamaño original'},{role:'zoomIn',label:'Acercar'},{role:'zoomOut',label:'Alejar'},{role:'togglefullscreen',label:'Pantalla completa'}]},
-    {label:'Ayuda',submenu:[{label:'Acerca de Bee-Muse',click:()=>dialog.showMessageBox(mainWindow,{message:'Bee-Muse · IART Labs · La Colmena',detail:'Aplicación de escritorio 0.5.0. Biblioteca local y Muse en nube. Compilación de Windows; distribución pública y firma pendientes.'})}]}
+    {label:'Ayuda',submenu:[{label:'Repetir la guía de primer uso',click:()=>mainWindow.loadURL(origin+'/muse?guia=1')},{type:'separator'},{label:'Acerca de Bee-Muse',click:()=>dialog.showMessageBox(mainWindow,{message:'Bee-Muse · IART Labs · La Colmena',detail:'Aplicación de escritorio 0.5.0. Biblioteca local y Muse en nube. Compilación de Windows; distribución pública y firma pendientes.'})}]}
   ]));
 }
 function contextMenu(contents){
