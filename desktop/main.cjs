@@ -4,7 +4,8 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {spawn,spawnSync}=require('node:child_process');
 const {openBrowser}=require('./browser.cjs');
-let mainWindow,backend,origin,ending=false;
+const {openCode,stopCode}=require('./code.cjs');
+let mainWindow,backend,origin,libraryDir,ending=false;
 const storageKeys=new Set(['html-library-selection','html-library-stages','html-bee-history','muse-agent-history']);
 ipcMain.on('bee-storage',(event,action,key,value)=>{
   if(!mainWindow||event.sender!==mainWindow.webContents||!event.senderFrame?.url.startsWith(origin+'/')||!storageKeys.has(key)){event.returnValue=null;return;}
@@ -30,6 +31,8 @@ function library(){
   for(const name of fs.readdirSync(template)){const source=path.join(template,name),destination=path.join(target,name);if(/\.(html|js|css)$/.test(name)||name==='mascotas')fs.cpSync(source,destination,{recursive:true,force:true});else if(!fs.existsSync(destination))fs.cpSync(source,destination,{recursive:true,force:false,errorOnExist:false});}
   return target;
 }
+function codeFolder(){const custom=process.env.BEECODE_CWD;return custom&&path.isAbsolute(custom)&&fs.existsSync(custom)?custom:libraryDir;}
+function showCode(){openCode(mainWindow,codeFolder()).catch(error=>dialog.showErrorBox('No se pudo abrir Code',error.message));}
 function trustedMain(event){return mainWindow&&event.sender===mainWindow.webContents&&event.senderFrame===mainWindow.webContents.mainFrame&&event.senderFrame.url.startsWith(origin+'/');}
 ipcMain.handle('bee-open-browser',event=>{if(!trustedMain(event))throw Error('Solicitud no permitida.');openBrowser(mainWindow);return true;});
 ipcMain.handle('bee-open-account',async(event,flow,provider)=>{
@@ -70,6 +73,7 @@ function menu(){
     {label:'Ir a',submenu:[['Mis archivos','/'],['Biblioteca HTML','/html'],['Carpetas y movimientos','/carpetas'],['Muse','/muse'],['Apuntadora','/apuntadora'],['Conexiones','/conexiones'],['Hackatón','/hackaton']].map(([label,route])=>({label,click:()=>mainWindow.loadURL(origin+route)}))},
     {label:'Editar',submenu:[{role:'undo',label:'Deshacer'},{role:'redo',label:'Rehacer'},{type:'separator'},{role:'cut',label:'Cortar'},{role:'copy',label:'Copiar'},{role:'paste',label:'Pegar'},{role:'selectAll',label:'Seleccionar todo'}]},
     {label:'Navegador',submenu:[{label:'Abrir navegador Bee-Muse',click:()=>openBrowser(mainWindow)}]},
+    {label:'Code',submenu:[{label:'Abrir BeeCode',click:showCode}]},
     {label:'Vista',submenu:[{role:'reload',label:'Recargar vista'},{role:'resetZoom',label:'Tamaño original'},{role:'zoomIn',label:'Acercar'},{role:'zoomOut',label:'Alejar'},{role:'togglefullscreen',label:'Pantalla completa'}]},
     {label:'Ayuda',submenu:[{label:'Acerca de Bee-Muse',click:()=>dialog.showMessageBox(mainWindow,{message:'Bee-Muse · IART Labs · La Colmena',detail:'Aplicación de escritorio 0.5.0. Biblioteca local y Muse en nube. Compilación de Windows; distribución pública y firma pendientes.'})}]}
   ]));
@@ -103,7 +107,8 @@ function startBackend(folder){return new Promise((resolve,reject)=>{
 if(locked)app.whenReady().then(async()=>{
   try{
     fs.mkdirSync(app.getPath('userData'),{recursive:true});
-    origin=await startBackend(library());
+    libraryDir=library();
+    origin=await startBackend(libraryDir);
     mainWindow=new BrowserWindow({title:'Bee-Muse · IArtLabs · 0.5.0',width:1280,height:860,minWidth:680,minHeight:560,backgroundColor:'#0a0a0f',show:false,webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,partition:'persist:bee-muse-desktop'}});
     mainWindow.on('page-title-updated',event=>event.preventDefault());
     safeWindow(mainWindow);menu();
@@ -112,4 +117,4 @@ if(locked)app.whenReady().then(async()=>{
   }catch(error){dialog.showErrorBox('No se pudo abrir Bee-Muse',error.message);app.quit();}
 });
 app.on('window-all-closed',()=>app.quit());
-app.on('before-quit',()=>{ending=true;if(backend&&!backend.killed){if(process.platform==='win32')spawnSync('taskkill.exe',['/PID',String(backend.pid),'/T','/F'],{windowsHide:true,timeout:8000});else backend.kill();}});
+app.on('before-quit',()=>{ending=true;stopCode();if(backend&&!backend.killed){if(process.platform==='win32')spawnSync('taskkill.exe',['/PID',String(backend.pid),'/T','/F'],{windowsHide:true,timeout:8000});else backend.kill();}});

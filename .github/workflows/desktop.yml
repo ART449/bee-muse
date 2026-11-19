@@ -63,6 +63,9 @@ jobs:
         run: python scripts/smoke_backend.py
       - run: npm ci
         working-directory: desktop
+      - name: Pruebas del módulo Code (BeeCode)
+        run: node --test beecode.test.cjs
+        working-directory: desktop
       - name: Empaquetar Electron (reintenta si la descarga de Electron se corta)
         shell: bash
         working-directory: desktop

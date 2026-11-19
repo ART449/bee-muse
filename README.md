@@ -45,11 +45,24 @@ Probado en Windows el 12 de noviembre de 2026 con Muse (`muse-wonder-1.0`) y con
 - Android: cliente nativo Java y APK de depuración 0.5.0 compilados en CI. Incluye conexión HTTPS, archivos, chat, voz del teléfono y nuevos módulos de control de pantalla, asistente, avisos hablados y navegador. Falta la ronda de uso en dispositivo; consulta [ANDROID.md](ANDROID.md).
 - Meta: aplicación Bee-Muse registrada en modo de desarrollo, propiedad de IArtLabs y con Facebook Login agregado. Falta configurar el retorno OAuth y Firebase y completar un acceso real; consulta [META.md](META.md).
 - INBEEBOX: herramientas MCP de consulta implementadas; salud local verificada.
-- BeeCode: integración pendiente; no se sustituye el fork correcto por las variantes Android o Crush.
+- BeeCode: primera integración en escritorio (menú Code, ver abajo); no se sustituye el fork correcto por las variantes Android o Crush.
 
 Conversación con historial, ejecución de herramientas y terminal, nueve animaciones de CyberBee/OctoHype asociadas a estados, proveedor Facebook preparado y controles de voz. Consulta [VALIDATION.md](VALIDATION.md) para distinguir lo probado de lo pendiente; especialmente dictado Meta, OAuth real y Android.
 
 El escritorio 0.5.0 incorpora navegador Chromium mediante Electron: se abre desde el menú Navegador o el botón en Muse. Tiene dirección HTTPS, atrás, adelante, recarga y guardado de descargas. El contenido remoto está separado de las herramientas locales; no dispone de Node ni del puente de archivos, terminal o identidad. La navegación para agentes mediante MCP todavía no está conectada.
+
+## Code (BeeCode)
+
+El menú **Code → Abrir BeeCode** abre una ventana con la interfaz web de BeeCode (fork de OpenCode). Bee-Muse arranca bajo demanda `bee-code serve --port <P> --hostname 127.0.0.1` dentro de WSL, espera hasta 30 s a que el puerto responda y carga `http://127.0.0.1:<P>`. Si en ese puerto ya hay un servidor de BeeCode, lo reutiliza y no lo detiene. Al cerrar la ventana Code o la aplicación se detiene sólo el servidor que Bee-Muse arrancó. Si el puerto lo ocupa otro programa, o faltan WSL, la distribución o el binario, la ventana muestra el error.
+
+| Variable | Uso |
+|---|---|
+| `BEECODE_WSL_DISTRO` | Distribución de WSL. Por defecto `Debian` |
+| `BEECODE_WSL_BIN` | Ruta Linux absoluta del binario. Por defecto `/home/vasart/.local/bin/bee-code` (equipo de desarrollo); cámbiala en otro equipo |
+| `BEECODE_PORT` | Puerto local, 1024 a 65535. Por defecto `4096` |
+| `BEECODE_CWD` | Carpeta de trabajo (ruta de Windows absoluta). Por defecto, la biblioteca de Bee-Muse |
+
+El servidor escucha sólo en `127.0.0.1` y no tiene contraseña: cualquier programa del mismo equipo puede usarlo mientras está abierto. Requiere Windows con WSL 2. La lógica está en `desktop/beecode.cjs` y se prueba con `node --test desktop/beecode.test.cjs`.
 
 ## Compilar escritorio
 
